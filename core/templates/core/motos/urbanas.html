@@ -1,0 +1,65 @@
+{% extends 'core/basetemplates.html' %} 
+{% block content %}
+<style>
+    p{
+        font-size: small;
+    }
+
+    .box:hover{
+        background-color: rgba(0, 0 ,0, 0.1);
+        box-shadow: 1px 1px 10px rgba(0, 0 ,0, 0.1);
+    }
+</style>
+
+<div
+  class="fil"
+  style="
+    margin: auto;
+    top: 25%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: scroll;
+    margin-bottom: 56px;
+  "
+>
+  {% for inventario in inventario %} 
+    {% if inventario.sub_categoria == 'urbanas' %}
+    <div
+      class="box"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: end;
+        height: 600px;
+        width: 400px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: background-color 0.5s ease;
+        "
+      "
+    >
+      <div
+        style="
+        height: 300px;
+        width: 350px;
+        display: flex;
+        overflow: auto; 
+        background-image: url(' {{ inventario.photo.url }} '); 
+        background-repeat: no-repeat; 
+        background-size: 350px 300px;
+        margin-bottom: 10%;
+        ">
+      </div>
+      <div>
+        <h5 class="ms-3">{{ inventario.nombre }}</h5>
+        <h5>{{ inventario.precio }}</h5>
+        <a href="{% url 'vermas' inventario.id %}" class="ms-3 btn btn-dark" style="margin-bottom: 40%;">ver mas</a>
+      </div>
+    </div>
+    {% endif %} 
+  {% endfor %} 
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+
+
+.box:hover{
+  background-color: rgba(0, 0 ,0, 0.1);
+  box-shadow: 1px 1px 10px rgba(0, 0 ,0, 0.1);
+  background-image: none;
+}
+
+.data{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: center;
+}
+
+.photo {
+  justify-content: center;
+  width: auto;
+  display: flex;
+  flex: 1;
+  background-repeat: no-repeat;
+}
+
+.cont{
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 50px;
+}
+
+
+.forma{
+    flex: 0.5;
+    margin: 15px;
+}
+
+.descripcion{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+table {
+  width: 90%;
+}
+
+table tr td:nth-of-type(1) {
+  color: #2d434d;
+    display: flex;
+    align-items: center;
+    display: table-cell;
+    width: 50%;
+    border-bottom: 1px solid #80808024;
+    padding: 10px 0;
+}
+table tr td {
+  padding-bottom: 1.4rem;
+  line-height: 1;
+  border-bottom: 1px dashed #80808024;
+}
+table tr td:nth-of-type(2) {
+    text-align: right;
+}
+.new-single .specification-info {
+  padding: 0rem 0rem;
+}
+table span {
+  color: #ED1744;
+  font-weight: 300;
+  margin-right: 1rem;
+  font-size: 3rem;
+}
+table span:before {
+  color: #ED1744;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* footer */
+
+#div_foot {
+  position: absolute;
+  width: 100%; /* Asegura que el ancho sea el 100% del viewport */
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 100px;
+  background-color: #232323; /* Cambia el color según tu preferencia */
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño total */
+}
+
+#foot{
+  width: 90%;
+  margin: 0 auto;
+}
+
+#foot ul li a {
+  color: #ffffff; 
+  text-decoration: none; 
+}
+
+#foot ul li a:hover {
+  color: #07B0F2; 
+}
+
+
+#div_foot h5 {
+  color: #07B0F2; 
+}
+  
+#redes {
+  width: 100%; 
+  background-color: #1C1C1C; 
+  color: #ffffff; 
+  padding: 20px 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  position: relative; 
+}
+
+#redes .container {
+  width: 90%; 
+  margin: 0 auto; 
+}
+
+#redes ul {
+  list-style: none;
+  padding: 0;
+  margin-right: 20px;
+  display: flex;
+  gap: 10px;
+  position: absolute; 
+  right: 0; 
+}
+
+#redes ul li a i {
+  color: #ffffff;
+}
+
+#redes ul li a:hover i {
+  color: #07B0F2; 
+}
+
+#redes p a{
+  text-decoration: none;
+}
+
+#redes p a:hover{
+  color: #07B0F2;
+}
+
+/* Finfooter */
+
+
+/* NavBar */
+#navbarText ul li a{
+  color: #ffffff;
+}
+
+#navbarText ul li a:hover{
+  color: #F21B54;
+}
+
+#menu:hover{
+  color: #F21B54;
+  border: none;
+}
+
+#navbarText button{
+  border: none;
+}
+
+#buscar{
+  background-color: #000000;
+  color: #ffffff;
+}
+
+#buscar:hover{
+  background-color: #F21B54;
+  color: #ffffff;
+}
+
+nav{
+  margin-bottom: 50px;
+}
+/* FIn NavBar */

@@ -1,0 +1,115 @@
+{% extends 'core/basetemplates.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="mb-4">
+        <i class="fas fa-chart-line me-2"></i>Panel de Reportes
+      </h3>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5><i class="fas fa-file-pdf me-2"></i>Reportes de Inventario</h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Genera reportes detallados del inventario disponible.</p>
+              <div class="d-grid gap-2">
+                <a href="{% url 'generar_reporte_inventario_pdf' %}" class="btn btn-outline-primary">
+                  <i class="fas fa-download me-1"></i>Descargar Reporte de Inventario (PDF)
+                </a>
+                <a href="{% url 'generar_reporte_ventas_pdf' %}" class="btn btn-outline-success">
+                  <i class="fas fa-chart-bar me-1"></i>Descargar Reporte de Ventas (PDF)
+                </a>
+                <button class="btn btn-outline-info" onclick="generarReporte('usuarios')">
+                  <i class="fas fa-users me-1"></i>Reporte de Usuarios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5><i class="fas fa-tachometer-alt me-2"></i>Estadísticas Generales</h5>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-6 mb-3">
+                  <div class="p-3 bg-primary text-white rounded">
+                    <h4>{{ total_productos|default:"0" }}</h4>
+                    <small>Productos</small>
+                  </div>
+                </div>
+                <div class="col-6 mb-3">
+                  <div class="p-3 bg-success text-white rounded">
+                    <h4>{{ total_usuarios|default:"0" }}</h4>
+                    <small>Usuarios</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-3 bg-warning text-white rounded">
+                    <h4>{{ total_ventas|default:"0" }}</h4>
+                    <small>Ventas</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-3 bg-info text-white rounded">
+                    <h4>${{ total_ingresos|default:"0" }}</h4>
+                    <small>Ingresos</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card mt-3">
+            <div class="card-header">
+              <h5><i class="fas fa-cog me-2"></i>Opciones de Reporte</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="mb-3">
+                  <label class="form-label">Formato de archivo</label>
+                  <select class="form-select" id="formato">
+                    <option value="pdf">PDF</option>
+                    <option value="excel">Excel</option>
+                    <option value="csv">CSV</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Rango de fechas</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="date" class="form-control" id="fecha_inicio">
+                    </div>
+                    <div class="col-6">
+                      <input type="date" class="form-control" id="fecha_fin">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function generarReporte(tipo) {
+  const formato = document.getElementById('formato').value;
+  const fechaInicio = document.getElementById('fecha_inicio').value;
+  const fechaFin = document.getElementById('fecha_fin').value;
+  
+  // Por ahora solo mostramos un mensaje, después se puede implementar la generación real
+  alert(`Generando reporte de ${tipo} en formato ${formato}${fechaInicio ? ` desde ${fechaInicio}` : ''}${fechaFin ? ` hasta ${fechaFin}` : ''}`);
+}
+</script>
+{% endblock %}
+
+
+

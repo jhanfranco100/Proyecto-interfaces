@@ -1,0 +1,15 @@
+{% extends 'core/basetemplates.html' %}
+{% block content %}
+<div class="container" style="max-width: 800px;">
+  <h3 class="mb-3">Producto</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'admin_inventario' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
+
+
+

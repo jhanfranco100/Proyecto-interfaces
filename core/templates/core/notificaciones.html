@@ -1,0 +1,51 @@
+{% extends 'core/basetemplates.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="mb-4">
+        <i class="fas fa-bell me-2"></i>Mis Notificaciones
+      </h3>
+      
+      {% if notificaciones %}
+        <div class="list-group">
+          {% for notificacion in notificaciones %}
+            <div class="list-group-item {% if not notificacion.leida %}list-group-item-primary{% endif %}">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">
+                  {% if notificacion.tipo == 'venta' %}
+                    <i class="fas fa-shopping-cart text-success me-2"></i>
+                  {% elif notificacion.tipo == 'info' %}
+                    <i class="fas fa-info-circle text-info me-2"></i>
+                  {% elif notificacion.tipo == 'promocion' %}
+                    <i class="fas fa-percent text-warning me-2"></i>
+                  {% elif notificacion.tipo == 'stock' %}
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                  {% else %}
+                    <i class="fas fa-bell text-secondary me-2"></i>
+                  {% endif %}
+                  {{ notificacion.titulo }}
+                </h5>
+                <small class="text-muted">{{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}</small>
+              </div>
+              <p class="mb-1">{{ notificacion.mensaje }}</p>
+              {% if not notificacion.leida %}
+                <small class="text-primary">
+                  <i class="fas fa-circle me-1"></i>Nueva
+                </small>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info text-center">
+          <i class="fas fa-bell-slash fa-3x mb-3"></i>
+          <h4>No tienes notificaciones</h4>
+          <p>Cuando realices compras o solicites cotizaciones, recibirás notificaciones aquí.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

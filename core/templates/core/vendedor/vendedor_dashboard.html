@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Vendedor - Yamaha</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        .btn-custom {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        .venta-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-user-tie me-2"></i>Vendedor
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="{% url 'vendedor' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link" href="{% url 'vendedor_venta' %}">
+                            <i class="fas fa-cash-register me-2"></i>Realizar Venta
+                        </a>
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-2"></i>Ver Productos
+                        </a>
+                        <a class="nav-link" href="{% url 'perfil' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <hr class="text-white">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <div class="p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-user-tie me-2"></i>Panel de Vendedor
+                        </h2>
+                        <div class="text-muted">
+                            Bienvenido, <strong>{{ user.nombreCompleto }}</strong>
+                        </div>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card venta-card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-cash-register fa-3x mb-3"></i>
+                                    <h4>Realizar Nueva Venta</h4>
+                                    <p class="mb-3">Procesa una venta seleccionando productos, cantidad y método de pago</p>
+                                    <a href="{% url 'vendedor_venta' %}" class="btn btn-light btn-lg">
+                                        <i class="fas fa-plus me-2"></i>Iniciar Venta
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-box fa-3x mb-3 text-primary"></i>
+                                    <h4>Ver Productos</h4>
+                                    <p class="mb-3">Explora el catálogo completo de productos disponibles</p>
+                                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-eye me-2"></i>Ver Catálogo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculadora de Precios -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-calculator me-2"></i>Calculadora de Precios
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form class="row g-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">Producto</label>
+                                            <select class="form-select" id="producto">
+                                                <option value="">Seleccione un producto</option>
+                                                {% for item in inventario %}
+                                                    <option value="{{ item.id }}" data-precio="{{ item.precio }}">{{ item.nombre }} - {{ item.precio }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Cantidad</label>
+                                            <input type="number" id="cantidad" min="1" value="1" class="form-control" />
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="button" id="calcular" class="btn btn-primary">
+                                                <i class="fas fa-calculator me-1"></i>Calcular Total
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <div class="mt-3 p-3 bg-light rounded">
+                                        <h5><strong>Total: $<span id="total">0</span></strong></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-bar me-2"></i>Estadísticas Rápidas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <div class="p-3 bg-primary text-white rounded">
+                                                <h4>{{ inventario.count }}</h4>
+                                                <small>Productos</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3 bg-success text-white rounded">
+                                                <h4>{{ ventas_recientes.count }}</h4>
+                                                <small>Ventas Hoy</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ventas Recientes -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-clock me-2"></i>Ventas Recientes
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if ventas_recientes %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Cliente</th>
+                                                        <th>Fecha</th>
+                                                        <th>Total</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for venta in ventas_recientes %}
+                                                        <tr>
+                                                            <td>{{ venta.cliente.nombreCompleto }}</td>
+                                                            <td>{{ venta.fecha_venta|date:"d/m/Y H:i" }}</td>
+                                                            <td>${{ venta.total|floatformat:2 }}</td>
+                                                            <td>
+                                                                <span class="badge bg-success">{{ venta.estado|title }}</span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No hay ventas recientes</h5>
+                                            <p class="text-muted">Realiza tu primera venta para ver el historial aquí</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-list me-2"></i>Productos Populares
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group list-group-flush">
+                                        {% for item in inventario|slice:":5" %}
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ item.nombre }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ item.categoria|title }}</small>
+                                                </div>
+                                                <span class="badge bg-primary rounded-pill">{{ item.precio }}</span>
+                                            </div>
+                                        {% empty %}
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-box-open fa-2x mb-2"></i>
+                                                <p>No hay productos disponibles</p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('calcular').addEventListener('click', function() {
+            const select = document.getElementById('producto');
+            const cantidad = parseInt(document.getElementById('cantidad').value || '1');
+            
+            if (select.selectedIndex === 0) {
+                alert('Por favor seleccione un producto');
+                return;
+            }
+            
+            // Limpiar el precio removiendo símbolos
+            const precioTexto = select.options[select.selectedIndex].getAttribute('data-precio') || '0';
+            const precioLimpio = precioTexto.replace('$', '').replace(',', '').replace(' ', '');
+            const precio = parseFloat(precioLimpio) || 0;
+            
+            const total = precio * cantidad;
+            document.getElementById('total').textContent = isNaN(total) ? '0' : total.toLocaleString('es-CO');
+        });
+        
+        // Calcular automáticamente cuando cambie la cantidad o el producto
+        document.getElementById('cantidad').addEventListener('input', function() {
+            if (document.getElementById('producto').selectedIndex > 0) {
+                document.getElementById('calcular').click();
+            }
+        });
+        
+        document.getElementById('producto').addEventListener('change', function() {
+            if (this.selectedIndex > 0) {
+                document.getElementById('calcular').click();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+{% extends 'core/basetemplates.html' %}
+{% load static %}
+
+{% block title %}Realizar Venta{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cash-register"></i> Realizar Venta</h2>
+                <a href="{% url 'vendedor' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Panel
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Datos de la Venta</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="ventaForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.producto.id_for_label }}" class="form-label">Producto *</label>
+                                        {{ form.producto }}
+                                        {% if form.producto.errors %}
+                                            <div class="text-danger">{{ form.producto.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.cantidad.id_for_label }}" class="form-label">Cantidad *</label>
+                                        {{ form.cantidad }}
+                                        {% if form.cantidad.errors %}
+                                            <div class="text-danger">{{ form.cantidad.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.cliente.id_for_label }}" class="form-label">Cliente *</label>
+                                        {{ form.cliente }}
+                                        {% if form.cliente.errors %}
+                                            <div class="text-danger">{{ form.cliente.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.metodo_pago.id_for_label }}" class="form-label">Método de Pago *</label>
+                                        {{ form.metodo_pago }}
+                                        {% if form.metodo_pago.errors %}
+                                            <div class="text-danger">{{ form.metodo_pago.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check"></i> Procesar Venta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información de Venta</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="ventaInfo">
+                                <p class="text-muted">Selecciona un producto para ver los detalles</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ventas Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if ventas_recientes %}
+                                <div class="list-group list-group-flush">
+                                    {% for venta in ventas_recientes %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <small class="text-muted">{{ venta.fecha_venta|date:"d/m/Y" }}</small>
+                                                <br>
+                                                <strong>{{ venta.cliente.nombreCompleto }}</strong>
+                                            </div>
+                                            <span class="badge bg-success">${{ venta.total|floatformat:2 }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No hay ventas recientes</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productoSelect = document.getElementById('{{ form.producto.id_for_label }}');
+    const cantidadInput = document.getElementById('{{ form.cantidad.id_for_label }}');
+    const ventaInfo = document.getElementById('ventaInfo');
+    
+    function updateVentaInfo() {
+        const selectedOption = productoSelect.options[productoSelect.selectedIndex];
+        if (selectedOption.value) {
+            const precio = selectedOption.getAttribute('data-precio') || '0';
+            const cantidad = cantidadInput.value || '1';
+            const total = parseFloat(precio) * parseInt(cantidad);
+            
+            ventaInfo.innerHTML = `
+                <h6>${selectedOption.text}</h6>
+                <p><strong>Precio unitario:</strong> $${parseFloat(precio).toFixed(2)}</p>
+                <p><strong>Cantidad:</strong> ${cantidad}</p>
+                <hr>
+                <h5><strong>Total: $${total.toFixed(2)}</strong></h5>
+            `;
+        } else {
+            ventaInfo.innerHTML = '<p class="text-muted">Selecciona un producto para ver los detalles</p>';
+        }
+    }
+    
+    productoSelect.addEventListener('change', updateVentaInfo);
+    cantidadInput.addEventListener('input', updateVentaInfo);
+    
+    // Cargar precios de productos
+    fetch('/api/productos-precios/')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(producto => {
+                const option = productoSelect.querySelector(`option[value="${producto.id}"]`);
+                if (option) {
+                    option.setAttribute('data-precio', producto.precio);
+                }
+            });
+        })
+        .catch(error => console.log('Error cargando precios:', error));
+});
+</script>
+{% endblock %}

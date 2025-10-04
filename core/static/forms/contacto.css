@@ -1,0 +1,86 @@
+
+.container {
+  position: relative;
+  max-width: 700px;
+  width: 100%;
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+.container header {
+  font-size: 1.8rem;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+.form {
+  margin-top: 30px;
+}
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.input-box {
+  flex: 1;
+  min-width: calc(50% - 10px);
+  margin-top: 20px;
+}
+.input-box label {
+  color: #000;
+  font-weight: 500;
+}
+
+.input-box input,
+.input-box textarea {
+  width: 100%;
+  height: 50px;
+  outline: none;
+  font-size: 1rem;
+  color: #707070;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0 15px;
+}
+.input-box textarea {
+  height: 100px;
+  resize: vertical;
+}
+.input-box input:focus,
+.input-box textarea:focus {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+.textarea-box {
+  flex: 1 0 100%;
+}
+.form button {
+  height: 55px;
+  width: 100%;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 30px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #000;
+}
+.form button:hover {
+  background: #707070;
+} 
+
+#noti{
+  color: #000;
+}
+/*Responsive*/
+@media screen and (max-width: 500px) {
+  .form-row {
+    flex-direction: column;
+  }
+  .input-box {
+    min-width: 100%;
+  }
+}
+

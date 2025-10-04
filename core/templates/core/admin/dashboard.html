@@ -1,0 +1,118 @@
+{% extends 'core/basetemplates.html' %}
+{% load static %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>Panel de Administración
+            </h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="row">
+                <!-- Gestión de Usuarios -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Gestión de Usuarios</h5>
+                            <p class="card-text">Administra usuarios del sistema, roles y permisos.</p>
+                            <a href="{% url 'admin_usuarios' %}" class="btn btn-primary">
+                                <i class="fas fa-cog me-1"></i>Gestionar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Inventario -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Gestión de Inventario</h5>
+                            <p class="card-text">Administra productos, categorías y stock.</p>
+                            <a href="{% url 'admin_inventario' %}" class="btn btn-success">
+                                <i class="fas fa-cog me-1"></i>Gestionar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Insumos -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-tools fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Gestión de Insumos</h5>
+                            <p class="card-text">Administra insumos, proveedores y stock.</p>
+                            <a href="{% url 'admin_insumos' %}" class="btn btn-warning">
+                                <i class="fas fa-cog me-1"></i>Gestionar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Métodos de Pago -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-credit-card fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">Métodos de Pago</h5>
+                            <p class="card-text">Configura métodos de pago disponibles.</p>
+                            <a href="{% url 'admin_metodos_pago' %}" class="btn btn-info">
+                                <i class="fas fa-cog me-1"></i>Gestionar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reportes -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+                            <h5 class="card-title">Reportes</h5>
+                            <p class="card-text">Genera reportes de ventas e inventario en PDF.</p>
+                            <a href="{% url 'reportes_pdf' %}" class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-1"></i>Ver Reportes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas Rápidas -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-pie fa-3x text-secondary mb-3"></i>
+                            <h5 class="card-title">Estadísticas</h5>
+                            <p class="card-text">Vista rápida de estadísticas del sistema.</p>
+                            <div class="row text-center mt-3">
+                                <div class="col-6">
+                                    <h6 class="text-primary">{{ total_usuarios|default:"0" }}</h6>
+                                    <small>Usuarios</small>
+                                </div>
+                                <div class="col-6">
+                                    <h6 class="text-success">{{ total_productos|default:"0" }}</h6>
+                                    <small>Productos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

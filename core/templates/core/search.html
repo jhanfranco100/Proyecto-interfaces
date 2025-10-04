@@ -1,0 +1,33 @@
+
+
+{% extends 'core/basetemplates.html' %} {% block content %}
+<div class="container">
+  <ul class="responsive-table">
+
+  {% if articulos %}
+  <h1>{{ query }}</h1>
+  <p>Artículos encontrados: {{ articulos|length }} artículos</p>
+  {% for articulos in articulos %}
+  <li class="table-row m-4">
+    <div class="col me-3 border rounded">
+      <img
+        src="{{ articulos.photo.url }}"
+        alt=""
+        title=""
+        sizes="(max-width: 64.1rem) 100vw, 50vw"
+        style="width: 80%; height: 100%; max-height: 360px; object-fit: contain"
+      />
+      <h4 class="ms-3">{{ articulos.nombre }}</h4>
+      <p class="ms-3">{{ articulos.descripcion }}</p>
+      <a href="{% url 'vermas' articulos.id %}" class="ms-3 btn btn-dark" style="margin-bottom: 40%;">ver mas</a>
+    </div>
+  </li>
+  {% endfor %} 
+  {% else %}
+  </ul>
+  <p>{{ msj }}</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+

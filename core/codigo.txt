@@ -1,0 +1,61 @@
+def search(request):
+    inventario = Inventario.objects.all()
+    if request.GET['zona'] != '':
+        name = request.GET['zona']
+        
+
+        if 'search' in request.GET:
+            producto = request.GET['search']
+
+            if producto:
+                if name == 'accesorios' or name == 'equipamento' or name == 'vehiculos' or name == 'repuestos' or name == 'aditamenes':
+                    articulos = Inventario.objects.filter(Q(nombre__icontains = producto) | Q(descripcion__icontains = producto), 
+                    categoria = name
+                    ).distinct()
+
+                else:
+                    articulos = Inventario.objects.filter(Q(nombre__icontains = producto) | Q(descripcion__icontains = producto), 
+                    sub_categoria = name
+                    ).distinct()
+                    print('este')
+
+                if articulos.exists(): 
+                    context = {
+                        'page': 'search',
+                        'inventario': inventario,
+                        'articulos': articulos,
+                        'query': producto,
+                    }
+                    return render(request, 'core/search.html', context)
+                else:
+                    msj = 'Artículo no encontrado'
+                    return render(request, 'core/search.html', {'msj': msj, 'query': producto, 'page': 'search'})
+            else:
+                msj = 'No has ingresado ningún producto'
+                return render(request, 'core/search.html', {'msj': msj, 'page': 'search'})
+        else:
+            msj = 'No has buscado ningún producto'
+            return render(request, 'core/search.html', {'msj': msj, 'page': 'search'})
+
+    else:
+        if 'search' in request.GET:
+            producto = request.GET['search']
+            if producto:
+                articulos = Inventario.objects.filter(Q(nombre__icontains = producto) | Q(descripcion__icontains = producto)).distinct()
+                if articulos.exists(): 
+                    context = {
+                        'page_title': 'Accesorios',
+                        'inventario': inventario,
+                        'articulos': articulos,
+                        'query': producto,
+                    }
+                    return render(request, 'core/search.html', context)
+                else:
+                    msj = 'Artículo no encontrado'
+                    return render(request, 'core/search.html', {'msj': msj, 'query': producto})
+            else:
+                msj = 'No has ingresado ningún producto'
+                return render(request, 'core/search.html', {'msj': msj})
+        else:
+            msj = 'No has buscado ningún producto'
+            return render(request, 'core/search.html', {'msj': msj})

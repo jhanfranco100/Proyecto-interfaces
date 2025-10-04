@@ -1,0 +1,99 @@
+{% extends 'core/basetemplates.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar Insumo{% else %}Nuevo Insumo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        {% if form.instance.pk %}
+                            <i class="fas fa-edit"></i> Editar Insumo
+                        {% else %}
+                            <i class="fas fa-plus"></i> Nuevo Insumo
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre del Insumo *</label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-danger">{{ form.nombre.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría *</label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div class="text-danger">{{ form.categoria.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="text-danger">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.stock_actual.id_for_label }}" class="form-label">Stock Actual *</label>
+                                {{ form.stock_actual }}
+                                {% if form.stock_actual.errors %}
+                                    <div class="text-danger">{{ form.stock_actual.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.stock_minimo.id_for_label }}" class="form-label">Stock Mínimo *</label>
+                                {{ form.stock_minimo }}
+                                {% if form.stock_minimo.errors %}
+                                    <div class="text-danger">{{ form.stock_minimo.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.precio_unitario.id_for_label }}" class="form-label">Precio Unitario *</label>
+                                {{ form.precio_unitario }}
+                                {% if form.precio_unitario.errors %}
+                                    <div class="text-danger">{{ form.precio_unitario.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.proveedor.id_for_label }}" class="form-label">Proveedor</label>
+                            {{ form.proveedor }}
+                            {% if form.proveedor.errors %}
+                                <div class="text-danger">{{ form.proveedor.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_insumos' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 
+                                {% if form.instance.pk %}Actualizar{% else %}Crear{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
