@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
+from django.db.models import Sum
 
 # Create your models here.
 #estas lineas lo que hace es crear ususarios personalizados por consola
@@ -156,19 +156,35 @@ class Venta(models.Model):
             self.numero_factura = f"FAC-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
 
-
 class DetalleVenta(models.Model):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
-    
+
     class Meta:
         verbose_name = 'Detalle de Venta'
         verbose_name_plural = 'Detalles de Venta'
 
+    def save(self, *args, **kwargs):
+        # Calcular subtotal antes de guardar
+        self.subtotal = self.cantidad * self.precio_unitario
+        super().save(*args, **kwargs)
 
+        # Actualizar total de la venta
+        total = self.venta.detalles.aggregate(Sum('subtotal'))['subtotal__sum'] or 0
+        self.venta.total = total
+        self.venta.save(update_fields=['total'])
+
+    def delete(self, *args, **kwargs):
+        venta = self.venta
+        super().delete(*args, **kwargs)
+
+        # Recalcular el total después de eliminar el detalle
+        total = venta.detalles.aggregate(Sum('subtotal'))['subtotal__sum'] or 0
+        venta.total = total
+        venta.save(update_fields=['total'])
 
 
 

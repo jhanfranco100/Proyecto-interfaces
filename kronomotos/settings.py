@@ -13,7 +13,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    'yamaha'
+    'kronomotos'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -24,7 +24,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-ROOT_URLCONF = 'yamaha.urls'
+ROOT_URLCONF = 'kronomotos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -40,7 +40,7 @@ TEMPLATES = [
         },
     },
 ]
-WSGI_APPLICATION = 'yamaha.wsgi.application'
+WSGI_APPLICATION = 'kronomotos.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

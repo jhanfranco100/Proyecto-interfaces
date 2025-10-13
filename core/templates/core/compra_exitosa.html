@@ -1,0 +1,137 @@
+{% extends 'core/basetemplates.html' %}
+{% load static %}
+
+{% block title %}Compra Exitosa{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <!-- Icono de éxito -->
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <!-- Título principal -->
+                    <h2 class="card-title text-success mb-3">
+                        ¡Compra Realizada Exitosamente!
+                    </h2>
+                    
+                    <!-- Mensaje de confirmación -->
+                    <p class="card-text text-muted mb-4">
+                        Tu compra ha sido procesada correctamente. Recibirás un correo de confirmación con todos los detalles.
+                    </p>
+                    
+                    <!-- Información de la compra -->
+                    <div class="alert alert-success" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-receipt me-2"></i>Detalles de tu Compra
+                        </h5>
+                        <hr>
+                        <div class="row text-start">
+                            <div class="col-6">
+                                <strong>Total Pagado:</strong>
+                            </div>
+                            <div class="col-6">
+                                ${{ total|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-6">
+                                <strong>Número de Factura:</strong>
+                            </div>
+                            <div class="col-6">
+                                {{ numero_factura }}
+                            </div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-6">
+                                <strong>Fecha:</strong>
+                            </div>
+                            <div class="col-6">
+                                {{ fecha_compra|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-6">
+                                <strong>Método de Pago:</strong>
+                            </div>
+                            <div class="col-6">
+                                {{ metodo_pago }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información adicional -->
+                    <div class="alert alert-info" role="alert">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>Próximos Pasos
+                        </h6>
+                        <ul class="list-unstyled mb-0 text-start">
+                            <li><i class="fas fa-envelope text-primary me-2"></i>Recibirás un correo de confirmación</li>
+                            <li><i class="fas fa-truck text-primary me-2"></i>Te contactaremos para coordinar la entrega</li>
+                            <li><i class="fas fa-phone text-primary me-2"></i>Puedes contactarnos si tienes alguna pregunta</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'home' %}" class="btn btn-primary btn-lg me-md-2">
+                            <i class="fas fa-home me-2"></i>Volver al Inicio
+                        </a>
+                        <a href="{% url 'perfil' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                    </div>
+                    
+                    <!-- Información de contacto -->
+                    <div class="mt-4 pt-3 border-top">
+                        <small class="text-muted">
+                            ¿Tienes alguna pregunta? 
+                            <a href="{% url 'contactar' %}" class="text-decoration-none">Contáctanos</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 1rem;
+    }
+    
+    .alert {
+        border-radius: 0.5rem;
+    }
+    
+    .btn {
+        border-radius: 0.5rem;
+    }
+    
+    .fas.fa-check-circle {
+        animation: bounceIn 0.6s ease-in-out;
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+

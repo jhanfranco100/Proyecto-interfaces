@@ -26,9 +26,9 @@
         <a href="{% url 'agregar_al_carrito' objeto.id %}" class="btn btn-primary me-2">
           <i class="fas fa-shopping-cart me-1"></i>Añadir al carrito
         </a>
-        <a href="{% url 'comprar' objeto.id %}" class="btn btn-success me-2">
+        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#confirmarCompraModal">
           <i class="fas fa-credit-card me-1"></i>Comprar ahora
-        </a>
+        </button>
         <a href="{% url 'cotizar' objeto.id %}" class="btn btn-outline-primary">
           <i class="fas fa-calculator me-1"></i>Solicitar cotización
         </a>
@@ -71,5 +71,56 @@
       </tr>
     </tbody>
   </table>
+</div>
+
+<!-- Modal de confirmación de compra -->
+<div class="modal fade" id="confirmarCompraModal" tabindex="-1" aria-labelledby="confirmarCompraModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarCompraModalLabel">
+          <i class="fas fa-shopping-cart me-2"></i>Confirmar Compra
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-4">
+            <img src="{{ objeto.photo.url }}" alt="{{ objeto.nombre }}" class="img-fluid rounded">
+          </div>
+          <div class="col-md-8">
+            <h5>{{ objeto.nombre }}</h5>
+            <p class="text-muted">{{ objeto.descripcion|default:"Sin descripción disponible" }}</p>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <span><strong>Precio:</strong></span>
+              <span class="text-success fs-5"><strong>{{ objeto.precio }}</strong></span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span><strong>Cantidad:</strong></span>
+              <span>1 unidad</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <span><strong>Total a pagar:</strong></span>
+              <span class="text-success fs-4"><strong>{{ objeto.precio }}</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-info mt-3">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Información:</strong> Al confirmar la compra, se procesará el pago y recibirás una notificación por correo electrónico con los detalles de tu compra.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Cancelar
+        </button>
+        <a href="{% url 'comprar' objeto.id %}" class="btn btn-success">
+          <i class="fas fa-check me-1"></i>Confirmar Compra
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

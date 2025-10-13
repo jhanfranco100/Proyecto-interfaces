@@ -1,4 +1,10 @@
 from django.shortcuts import render
+from django.conf import settings
+import os
+from django.db.models import F, FloatField
+from django.db.models.functions import Cast
+
+from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -12,11 +18,56 @@ from .models import *
 from .email_notifications import enviar_notificacion_compra, enviar_notificacion_cotizacion, enviar_notificacion_bienvenida, notificar_admin_nuevo_usuario
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, Flowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from django.utils import timezone
+
+def procesar_precio(precio_str):
+    """
+    Función helper para procesar precios almacenados como texto
+    """
+    if not precio_str:
+        return 0.0
+    
+    try:
+        # Limpiar el precio removiendo símbolos comunes y texto adicional
+        precio_limpio = str(precio_str).replace('$', '').replace(',', '').replace(' ', '')
+        
+        # Remover texto adicional como "IVA INCLUIDO", "IVA", etc.
+        import re
+        # Buscar solo números y puntos
+        numeros = re.findall(r'[\d.]+', precio_limpio)
+        
+        if not numeros:
+            return 0.0
+        
+        # Tomar el primer número encontrado (el precio principal)
+        precio_numero = numeros[0]
+        
+        # Si el precio está vacío después de limpiar, usar 0
+        if not precio_numero or precio_numero == '':
+            return 0.0
+        
+        # Manejar diferentes formatos de números
+        # Si tiene múltiples puntos, probablemente son separadores de miles
+        if precio_numero.count('.') > 1:
+            # Remover todos los puntos y convertir
+            precio_sin_puntos = precio_numero.replace('.', '')
+            return float(precio_sin_puntos)
+        else:
+            # Un solo punto, puede ser decimal o separador de miles
+            # Si tiene más de 2 dígitos después del punto, probablemente es separador de miles
+            partes = precio_numero.split('.')
+            if len(partes) == 2 and len(partes[1]) > 2:
+                # Es separador de miles, remover el punto
+                return float(precio_numero.replace('.', ''))
+            else:
+                # Es decimal, mantener el punto
+                return float(precio_numero)
+    except (ValueError, AttributeError):
+        return 0.0
 
 def home(request):
     context = {
@@ -38,7 +89,7 @@ def redireccionar_usuario(request):
     elif tipo_usuario == 'vendedor':
         return redirect('vendedor')
     else:  # cliente
-        return redirect('home')
+        return redirect('perfil')
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -328,16 +379,8 @@ def comprar(request, pk_object):
     try:
         objeto = Inventario.objects.get(pk=pk_object)
         
-        # Procesar el precio de manera más robusta
-        try:
-            if objeto.precio:
-                # Limpiar el precio removiendo símbolos y espacios
-                precio_limpio = str(objeto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                precio_unitario = float(precio_limpio)
-            else:
-                precio_unitario = 0.0
-        except (ValueError, AttributeError):
-            precio_unitario = 0.0
+        # Procesar el precio usando la función helper
+        precio_unitario = procesar_precio(objeto.precio)
         
         # Crear la venta
         venta = Venta.objects.create(
@@ -359,12 +402,15 @@ def comprar(request, pk_object):
         # Enviar notificación por correo
         enviar_notificacion_compra(request.user, objeto, precio_unitario)
         
-        messages.success(request, f'¡Compra realizada exitosamente! Has comprado {objeto.nombre} por ${precio_unitario:,.2f}')
-        return redirect('vermas', pk_object=pk_object)
+        if precio_unitario > 0:
+            messages.success(request, f'¡Compra realizada exitosamente! Has comprado {objeto.nombre} por ${precio_unitario:,.2f}')
+        else:
+            messages.warning(request, f'¡Compra realizada! Has comprado {objeto.nombre}, pero el precio no se pudo procesar correctamente. Precio original: "{objeto.precio}"')
+        return redirect('perfil')
         
     except Exception as e:
         messages.error(request, f'Error al procesar la compra: {str(e)}')
-        return redirect('vermas', pk_object=pk_object)
+        return redirect('perfil')
 
 @login_required
 def cotizar(request, pk_object):
@@ -453,23 +499,23 @@ def vendedor_venta(request):
 @login_required
 @user_passes_test(es_admin)
 def admin_dashboard(request):
-    # Calcular estadísticas
+    # Contadores principales
     total_productos = Inventario.objects.count()
     total_usuarios = Usuarios.objects.count()
     total_ventas = Venta.objects.count()
     
-    # Calcular ingresos totales
-    total_ingresos = 0
-    for venta in Venta.objects.all():
-        total_ingresos += float(venta.total)
-    
+    total_ingresos = (
+    Venta.objects.annotate(total_float=Cast('total', FloatField()))
+    .aggregate(suma=Sum('total_float'))['suma'] or 0
+)
+
     context = {
         'total_productos': total_productos,
         'total_usuarios': total_usuarios,
         'total_ventas': total_ventas,
-        'total_ingresos': f"{total_ingresos:,.2f}"
+        'total_ingresos': f"{float(total_ingresos):,.2f}"
     }
-    
+
     return render(request, 'core/admin/admin_dashboard.html', context)
 
 @login_required
@@ -516,6 +562,18 @@ def generar_reporte_ventas_pdf(request):
     doc = SimpleDocTemplate(response, pagesize=letter)
     elements = []
     
+    logo_path = os.path.join(settings.BASE_DIR, 'core', 'static', 'img', 'logo.png')
+
+# Verifica si el archivo existe
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=120, height=60)
+        logo.hAlign = 'CENTER'
+        # Hacer el logo más opaco (transparencia)
+        logo._opacity = 0.10 # 0.7 = 70% de opacidad (30% transparente)
+        elements.append(logo)
+    elements.append(Spacer(1, 15))
+
+    
     # Estilos
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -527,7 +585,7 @@ def generar_reporte_ventas_pdf(request):
     )
     
     # Título
-    elements.append(Paragraph("REPORTE DE VENTAS - YAMAHA", title_style))
+    elements.append(Paragraph("REPORTE DE VENTAS - kronomotos", title_style))
     elements.append(Spacer(1, 20))
     
     # Fecha del reporte
@@ -601,6 +659,7 @@ def generar_reporte_ventas_pdf(request):
     doc.build(elements)
     return response
 
+
 @login_required
 @user_passes_test(es_admin)
 def generar_reporte_inventario_pdf(request):
@@ -622,7 +681,7 @@ def generar_reporte_inventario_pdf(request):
     )
     
     # Título
-    elements.append(Paragraph("REPORTE DE INVENTARIO - YAMAHA", title_style))
+    elements.append(Paragraph("REPORTE DE INVENTARIO - KRONOMOTOS", title_style))
     elements.append(Spacer(1, 20))
     
     # Fecha del reporte
@@ -899,15 +958,8 @@ def ver_carrito(request):
     total = Decimal('0')
     
     for item in carrito_items:
-        try:
-            if item.producto.precio:
-                precio_limpio = str(item.producto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                precio_num = Decimal(precio_limpio)
-            else:
-                precio_num = Decimal('0')
-        except (ValueError, AttributeError, InvalidOperation):
-            precio_num = Decimal('0')
-        
+        # Usar la función helper para procesar precios
+        precio_num = Decimal(str(procesar_precio(item.producto.precio)))
         subtotal = precio_num * item.cantidad
         total += subtotal
         listado.append({
@@ -936,14 +988,8 @@ def finalizar_compra(request):
                 # Crear la venta
                 total = Decimal('0')
                 for item in carrito_items:
-                    try:
-                        if item.producto.precio:
-                            precio_limpio = str(item.producto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                            precio_num = Decimal(precio_limpio)
-                        else:
-                            precio_num = Decimal('0')
-                    except (ValueError, AttributeError, InvalidOperation):
-                        precio_num = Decimal('0')
+                    # Usar la función helper para procesar precios
+                    precio_num = Decimal(str(procesar_precio(item.producto.precio)))
                     total += precio_num * item.cantidad
                 
                 venta = Venta.objects.create(
@@ -956,14 +1002,8 @@ def finalizar_compra(request):
                 
                 # Crear los detalles de venta
                 for item in carrito_items:
-                    try:
-                        if item.producto.precio:
-                            precio_limpio = str(item.producto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                            precio_unitario = Decimal(precio_limpio)
-                        else:
-                            precio_unitario = Decimal('0')
-                    except (ValueError, AttributeError, InvalidOperation):
-                        precio_unitario = Decimal('0')
+                    # Usar la función helper para procesar precios
+                    precio_unitario = Decimal(str(procesar_precio(item.producto.precio)))
                     
                     DetalleVenta.objects.create(
                         venta=venta,
