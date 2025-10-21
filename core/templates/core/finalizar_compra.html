@@ -56,7 +56,17 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>{{ item.cantidad }}</td>
+                                                <td>
+                                                    <form method="post" action="{% url 'actualizar_cantidad' item.id %}">
+                                                        {% csrf_token %}
+                                                        <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" 
+                                                            class="form-control form-control-sm text-center" style="width: 70px;">
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary mt-1">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+
                                                 <td>${{ item.precio|floatformat:2 }}</td>
                                                 <td>
                                                     ${{ item.subtotal|floatformat:2 }}

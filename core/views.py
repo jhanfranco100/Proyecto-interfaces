@@ -89,7 +89,7 @@ def redireccionar_usuario(request):
     elif tipo_usuario == 'vendedor':
         return redirect('vendedor')
     else:  # cliente
-        return redirect('perfil')
+        return redirect('home')
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -113,6 +113,41 @@ def login_view(request):
         form = UsuarioAuthenticationForm()
     
     return render(request, 'core/login.html', {'form': form})
+def register_view(request):
+    """
+    Registro público: usa UsuariosCreationFormUsuarios.
+    Asegura que el tipo guardado sea 'cliente'.
+    """
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = UsuariosCreationFormUsuarios(request.POST)
+        if form.is_valid():
+            # Guardar con commit=False para forzar tipo cliente por seguridad
+            usuario = form.save(commit=False)
+            usuario.tipo = 'cliente'
+            usuario.save()
+            # Enviar notificación de bienvenida por correo
+            try:
+                enviar_notificacion_bienvenida(usuario)
+            except Exception:
+                # No detener el flujo si falla el envío de correo
+                pass
+            # Notificar a administradores sobre el nuevo usuario
+            try:
+                notificar_admin_nuevo_usuario(usuario)
+            except Exception:
+                pass
+
+            messages.success(request, f'¡Registro exitoso como {usuario.tipo}! Ya puedes iniciar sesión.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        form = UsuariosCreationFormUsuarios()
+
+    return render(request, 'core/register.html', {'form': form})
 
 @login_required
 def logout_view(request):
@@ -124,6 +159,7 @@ def logout_view(request):
     else:
         # Mostrar página de confirmación
         return render(request, 'core/logout.html')
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -326,9 +362,10 @@ def search(request):
 def vermas(request, pk_object):
     
     objeto = Inventario.objects.get(pk=pk_object)
+    metodos_pago = MetodoPago.objects.filter(activo=True)
     data={
         'objeto': objeto,
-        
+        'metodos_pago': metodos_pago,
     }
     return render(request, 'core/VerMas.html', data)
     
@@ -379,6 +416,22 @@ def comprar(request, pk_object):
     try:
         objeto = Inventario.objects.get(pk=pk_object)
         
+        if request.method == 'POST':
+            metodo_pago_id = request.POST.get('metodo_pago')
+            
+            if not metodo_pago_id:
+                messages.error(request, 'Debes seleccionar un método de pago.')
+                return redirect('vermas', pk_object=pk_object)
+            
+            try:
+                metodo_pago = MetodoPago.objects.get(id=metodo_pago_id, activo=True)
+            except MetodoPago.DoesNotExist:
+                messages.error(request, 'Método de pago no válido.')
+                return redirect('vermas', pk_object=pk_object)
+        else:
+            # Si no es POST, redirigir al producto
+            return redirect('vermas', pk_object=pk_object)
+        
         # Procesar el precio usando la función helper
         precio_unitario = procesar_precio(objeto.precio)
         
@@ -387,6 +440,7 @@ def comprar(request, pk_object):
             cliente=request.user,
             vendedor=request.user,  # Por ahora el mismo usuario, después se puede cambiar
             total=precio_unitario,
+            metodo_pago=metodo_pago,
             estado='completada'
         )
         

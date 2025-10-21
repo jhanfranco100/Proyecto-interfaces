@@ -31,7 +31,11 @@ class UsuariosCreationFormUsuarios(UserCreationForm):
             'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['tipo'].choices = [('cliente', 'Cliente')]
+        self.fields['tipo'].initial = 'cliente'
 # Registro de administrador y supervisor (Solo los administradores pueden hacerlo)
 class UsuariosCreationFormAll(UserCreationForm):
     tipo = forms.ChoiceField(choices=TIPO_CHOICES, widget=forms.Select)

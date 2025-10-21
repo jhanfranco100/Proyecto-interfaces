@@ -4,20 +4,36 @@
 <link rel="stylesheet" href="{% static 'global.css' %}" />
 <div class="cont">
     <div class="photo">
-    <img
-      src="{{ objeto.photo.url }}"
-      alt="Image description"
-      sizes="(max-width: 600px) 100vw, 600px"
-      srcset="
-    {{ objeto.photo.url }} 600w,
-    {{ objeto.photo.url_large }} 1200w,
-    {{ objeto.photo.url_medium }} 800w,
-    {{ objeto.photo.url_small }} 400w
-"
-      width="600"
-      height="490"
-    />
-  </div>
+      <!-- Contenedor para la vista 3D -->
+      <div id="viewer3d" class="viewer-3d">
+        <div class="product-container">
+          <img
+            id="productImage"
+            src="{{ objeto.photo.url }}"
+            alt="{{ objeto.nombre }}"
+            class="product-image-3d"
+          />
+          <div class="product-shadow"></div>
+        </div>
+        <div class="viewer-controls">
+          <button id="rotateLeft" class="btn btn-sm btn-outline-primary" title="Rotar izquierda">
+            <i class="fas fa-undo"></i>
+          </button>
+          <button id="rotateRight" class="btn btn-sm btn-outline-primary" title="Rotar derecha">
+            <i class="fas fa-redo"></i>
+          </button>
+          <button id="resetView" class="btn btn-sm btn-outline-secondary" title="Vista inicial">
+            <i class="fas fa-home"></i>
+          </button>
+          <button id="autoRotate" class="btn btn-sm btn-outline-success" title="Rotación automática">
+            <i class="fas fa-play"></i>
+          </button>
+        </div>
+        <div class="viewer-info">
+          <small class="text-muted">Arrastra para rotar • Usa los controles para navegar</small>
+        </div>
+      </div>
+    </div>
   <div class="data">
     <h3>{{ objeto.nombre }}</h3>
     <h3>{{ objeto.precio }}</h3>
@@ -84,43 +100,378 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-4">
-            <img src="{{ objeto.photo.url }}" alt="{{ objeto.nombre }}" class="img-fluid rounded">
+        <form id="compraForm" method="post" action="{% url 'comprar' objeto.id %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-4">
+              <img src="{{ objeto.photo.url }}" alt="{{ objeto.nombre }}" class="img-fluid rounded">
+            </div>
+            <div class="col-md-8">
+              <h5>{{ objeto.nombre }}</h5>
+              <p class="text-muted">{{ objeto.descripcion|default:"Sin descripción disponible" }}</p>
+              <hr>
+              <div class="d-flex justify-content-between">
+                <span><strong>Precio:</strong></span>
+                <span class="text-success fs-5"><strong>{{ objeto.precio }}</strong></span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <label for="cantidad" class="form-label mb-0"><strong>Cantidad:</strong></label>
+                <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="50"
+                       class="form-control text-center" style="width: 100px;">
+              </div>
+              <hr>
+              
+              <!-- Selección de método de pago -->
+              <div class="mb-3">
+                <label for="metodo_pago" class="form-label">
+                  <i class="fas fa-credit-card me-1"></i>Método de Pago *
+                </label>
+                <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+                  <option value="">Selecciona un método de pago</option>
+                  {% for metodo in metodos_pago %}
+                    <option value="{{ metodo.id }}">{{ metodo.nombre }}</option>
+                  {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                  Por favor selecciona un método de pago.
+                </div>
+              </div>
+              
+              <hr>
+              <div class="d-flex justify-content-between">
+                <span><strong>Total a pagar:</strong></span>
+                <span class="text-success fs-4"><strong>{{ objeto.precio }}</strong></span>
+              </div>
+            </div>
           </div>
-          <div class="col-md-8">
-            <h5>{{ objeto.nombre }}</h5>
-            <p class="text-muted">{{ objeto.descripcion|default:"Sin descripción disponible" }}</p>
-            <hr>
-            <div class="d-flex justify-content-between">
-              <span><strong>Precio:</strong></span>
-              <span class="text-success fs-5"><strong>{{ objeto.precio }}</strong></span>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span><strong>Cantidad:</strong></span>
-              <span>1 unidad</span>
-            </div>
-            <hr>
-            <div class="d-flex justify-content-between">
-              <span><strong>Total a pagar:</strong></span>
-              <span class="text-success fs-4"><strong>{{ objeto.precio }}</strong></span>
-            </div>
+          <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Información:</strong> Al confirmar la compra, se procesará el pago y recibirás una notificación por correo electrónico con los detalles de tu compra.
           </div>
-        </div>
-        <div class="alert alert-info mt-3">
-          <i class="fas fa-info-circle me-2"></i>
-          <strong>Información:</strong> Al confirmar la compra, se procesará el pago y recibirás una notificación por correo electrónico con los detalles de tu compra.
-        </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="fas fa-times me-1"></i>Cancelar
         </button>
-        <a href="{% url 'comprar' objeto.id %}" class="btn btn-success">
+        <button type="submit" form="compraForm" class="btn btn-success">
           <i class="fas fa-check me-1"></i>Confirmar Compra
-        </a>
+        </button>
       </div>
     </div>
   </div>
 </div>
 {% endblock %}
+
+<style>
+/* Estilos para el viewer 3D */
+.viewer-3d {
+  position: relative;
+  display: inline-block;
+  width: 600px;
+  height: 490px;
+  border: 2px solid #ddd;
+  border-radius: 15px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  perspective: 1000px;
+}
+
+.product-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+.product-image-3d {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+  transform-style: preserve-3d;
+}
+
+.product-image-3d:active {
+  cursor: grabbing;
+}
+
+.product-shadow {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(5px);
+}
+
+.viewer-controls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.viewer-controls .btn {
+  padding: 10px 14px;
+  border-radius: 25px;
+  font-size: 13px;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.viewer-controls .btn:hover {
+  background: rgba(255,255,255,1);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.viewer-controls .btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.viewer-info {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  text-align: center;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Efecto de hover para el viewer */
+.viewer-3d:hover {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+  transition: all 0.3s ease;
+}
+
+.viewer-3d:hover .product-image-3d {
+  transform: scale(1.05);
+}
+
+/* Animaciones de rotación */
+.rotating {
+  animation: rotate3d 4s linear infinite;
+}
+
+@keyframes rotate3d {
+  from { 
+    transform: rotateY(0deg) rotateX(0deg); 
+  }
+  to { 
+    transform: rotateY(360deg) rotateX(0deg); 
+  }
+}
+
+/* Efectos 3D adicionales */
+.product-image-3d.rotating-3d {
+  animation: rotate3d 2s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .viewer-3d {
+    width: 100%;
+    height: 300px;
+  }
+  
+  .viewer-controls {
+    top: 10px;
+    right: 10px;
+    gap: 5px;
+  }
+  
+  .viewer-controls .btn {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Variables para el control 3D
+  let rotationX = 0;
+  let rotationY = 0;
+  let isDragging = false;
+  let previousMousePosition = { x: 0, y: 0 };
+  let autoRotate = false;
+  let autoRotateInterval;
+  
+  // Elementos del DOM
+  const productImage = document.getElementById('productImage');
+  const rotateLeft = document.getElementById('rotateLeft');
+  const rotateRight = document.getElementById('rotateRight');
+  const resetView = document.getElementById('resetView');
+  const autoRotateBtn = document.getElementById('autoRotate');
+  const viewer3d = document.getElementById('viewer3d');
+  
+  // Función para aplicar transformación 3D
+  function applyTransform() {
+    productImage.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg) scale3d(1, 1, 1)`;
+  }
+  
+  // Controles de rotación
+  rotateLeft.addEventListener('click', function() {
+    rotationY -= 45;
+    applyTransform();
+  });
+  
+  rotateRight.addEventListener('click', function() {
+    rotationY += 45;
+    applyTransform();
+  });
+  
+  resetView.addEventListener('click', function() {
+    rotationX = 0;
+    rotationY = 0;
+    applyTransform();
+  });
+  
+  autoRotateBtn.addEventListener('click', function() {
+    autoRotate = !autoRotate;
+    const icon = this.querySelector('i');
+    
+    if (autoRotate) {
+      icon.className = 'fas fa-pause';
+      this.classList.remove('btn-outline-success');
+      this.classList.add('btn-success');
+      
+      // Iniciar rotación automática
+      autoRotateInterval = setInterval(function() {
+        rotationY += 2;
+        applyTransform();
+      }, 50);
+    } else {
+      icon.className = 'fas fa-play';
+      this.classList.remove('btn-success');
+      this.classList.add('btn-outline-success');
+      
+      // Detener rotación automática
+      clearInterval(autoRotateInterval);
+    }
+  });
+  
+  // Controles de mouse
+  viewer3d.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    previousMousePosition = { x: e.clientX, y: e.clientY };
+    productImage.style.cursor = 'grabbing';
+  });
+  
+  document.addEventListener('mousemove', function(e) {
+    if (isDragging) {
+      const deltaX = e.clientX - previousMousePosition.x;
+      const deltaY = e.clientY - previousMousePosition.y;
+      
+      rotationY += deltaX * 0.5;
+      rotationX -= deltaY * 0.5;
+      
+      // Limitar rotación X
+      rotationX = Math.max(-60, Math.min(60, rotationX));
+      
+      applyTransform();
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    }
+  });
+  
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+    productImage.style.cursor = 'grab';
+  });
+  
+  // Controles táctiles
+  viewer3d.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isDragging = true;
+    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  });
+  
+  document.addEventListener('touchmove', function(e) {
+    if (isDragging) {
+      e.preventDefault();
+      const deltaX = e.touches[0].clientX - previousMousePosition.x;
+      const deltaY = e.touches[0].clientY - previousMousePosition.y;
+      
+      rotationY += deltaX * 0.5;
+      rotationX -= deltaY * 0.5;
+      
+      // Limitar rotación X
+      rotationX = Math.max(-60, Math.min(60, rotationX));
+      
+      applyTransform();
+      previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  });
+  
+  document.addEventListener('touchend', function() {
+    isDragging = false;
+  });
+  
+  // Zoom con rueda del mouse
+  viewer3d.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    const scale = e.deltaY > 0 ? 0.9 : 1.1;
+    const currentScale = parseFloat(productImage.style.transform.match(/scale3d\(([^)]+)\)/) || ['', '1, 1, 1'])[1];
+    const newScale = Math.max(0.5, Math.min(2, parseFloat(currentScale.split(',')[0]) * scale));
+    productImage.style.transform = productImage.style.transform.replace(/scale3d\([^)]+\)/, `scale3d(${newScale}, ${newScale}, ${newScale})`);
+  });
+  
+  // Efecto de hover 3D
+  viewer3d.addEventListener('mouseenter', function() {
+    productImage.style.transition = 'transform 0.3s ease';
+  });
+  
+  viewer3d.addEventListener('mouseleave', function() {
+    productImage.style.transition = 'transform 0.3s ease';
+  });
+  
+  // Validación del formulario de compra
+  const compraForm = document.getElementById('compraForm');
+  const metodoPago = document.getElementById('metodo_pago');
+  
+  if (compraForm && metodoPago) {
+    compraForm.addEventListener('submit', function(e) {
+      if (!metodoPago.value) {
+        e.preventDefault();
+        metodoPago.classList.add('is-invalid');
+        metodoPago.focus();
+      } else {
+        metodoPago.classList.remove('is-invalid');
+      }
+    });
+    
+    // Remover validación cuando se selecciona un método
+    metodoPago.addEventListener('change', function() {
+      if (this.value) {
+        this.classList.remove('is-invalid');
+      }
+    });
+  }
+  
+  // Inicializar con transformación por defecto
+  applyTransform();
+});
+</script>
