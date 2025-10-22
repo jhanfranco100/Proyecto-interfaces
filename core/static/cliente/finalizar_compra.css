@@ -1,0 +1,27 @@
+
+    .card {
+        border-radius: 1rem;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+    }
+
+    .table {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table-success th {
+        background-color: #d4edda !important;
+    }
+
+    h2.card-title {
+        font-weight: 700;
+    }
+

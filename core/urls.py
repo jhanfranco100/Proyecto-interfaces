@@ -29,6 +29,7 @@ urlpatterns = [
     path('carrito/ver/', ver_carrito, name='ver_carrito'),
     path('carrito/agregar/<int:pk_object>/', agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/quitar/<int:pk_object>/', quitar_del_carrito, name='quitar_del_carrito'),
+    path('carrito/actualizar/<int:pk_object>/', actualizar_cantidad_carrito, name='actualizar_cantidad_carrito'),
     path('carrito/finalizar/', finalizar_compra, name='finalizar_compra'),
     path('comprar/<int:pk_object>/', comprar, name='comprar'),
     path('cotizar/<int:pk_object>/', cotizar, name='cotizar'),

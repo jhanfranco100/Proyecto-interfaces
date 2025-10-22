@@ -460,7 +460,14 @@ def comprar(request, pk_object):
             messages.success(request, f'¡Compra realizada exitosamente! Has comprado {objeto.nombre} por ${precio_unitario:,.2f}')
         else:
             messages.warning(request, f'¡Compra realizada! Has comprado {objeto.nombre}, pero el precio no se pudo procesar correctamente. Precio original: "{objeto.precio}"')
-        return redirect('perfil')
+        
+        # Mostrar mensaje de compra exitosa en lugar de redirigir
+        return render(request, 'core/compra_exitosa.html', {
+            'total': precio_unitario,
+            'numero_factura': venta.numero_factura,
+            'fecha_compra': venta.fecha_venta,
+            'metodo_pago': venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
+        })
         
     except Exception as e:
         messages.error(request, f'Error al procesar la compra: {str(e)}')
@@ -510,16 +517,8 @@ def vendedor_venta(request):
             metodo_pago = form.cleaned_data['metodo_pago']
             cliente = form.cleaned_data['cliente']
             
-            # Calcular precio
-            try:
-                if producto.precio:
-                    precio_limpio = str(producto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                    precio_unitario = float(precio_limpio)
-                else:
-                    precio_unitario = 0.0
-            except (ValueError, AttributeError):
-                precio_unitario = 0.0
-            
+            # Calcular precio usando la función helper
+            precio_unitario = procesar_precio(producto.precio)
             total = precio_unitario * cantidad
             
             # Crear la venta
@@ -1006,6 +1005,34 @@ def quitar_del_carrito(request, pk_object):
     return redirect('ver_carrito')
 
 @login_required
+def actualizar_cantidad_carrito(request, pk_object):
+    try:
+        carrito_item = CarritoItem.objects.get(
+            usuario=request.user,
+            producto_id=pk_object
+        )
+        
+        if request.method == 'POST':
+            nueva_cantidad = int(request.POST.get('cantidad', 1))
+            
+            if nueva_cantidad <= 0:
+                carrito_item.delete()
+                messages.info(request, 'Producto eliminado del carrito')
+            else:
+                carrito_item.cantidad = nueva_cantidad
+                carrito_item.save()
+                messages.success(request, f'Cantidad actualizada a {nueva_cantidad}')
+        
+        return redirect('ver_carrito')
+        
+    except CarritoItem.DoesNotExist:
+        messages.warning(request, 'El producto no estaba en tu carrito')
+        return redirect('ver_carrito')
+    except Exception as e:
+        messages.error(request, f'Error al actualizar cantidad: {str(e)}')
+        return redirect('ver_carrito')
+
+@login_required
 def ver_carrito(request):
     carrito_items = CarritoItem.objects.filter(usuario=request.user)
     listado = []
@@ -1030,69 +1057,16 @@ def finalizar_compra(request):
     carrito_items = CarritoItem.objects.filter(usuario=request.user)
     
     if not carrito_items.exists():
-        messages.warning(request, 'Tu carrito está vacío')
+        messages.warning(request, 'Tu carrito está vacío.')
         return redirect('ver_carrito')
     
-    if request.method == 'POST':
-        form = VentaForm(request.POST)
-        if form.is_valid():
-            try:
-                metodo_pago = form.cleaned_data['metodo_pago']
-                
-                # Crear la venta
-                total = Decimal('0')
-                for item in carrito_items:
-                    # Usar la función helper para procesar precios
-                    precio_num = Decimal(str(procesar_precio(item.producto.precio)))
-                    total += precio_num * item.cantidad
-                
-                venta = Venta.objects.create(
-                    cliente=request.user,
-                    vendedor=request.user,  # Por ahora el mismo usuario
-                    total=total,
-                    metodo_pago=metodo_pago,
-                    estado='completada'
-                )
-                
-                # Crear los detalles de venta
-                for item in carrito_items:
-                    # Usar la función helper para procesar precios
-                    precio_unitario = Decimal(str(procesar_precio(item.producto.precio)))
-                    
-                    DetalleVenta.objects.create(
-                        venta=venta,
-                        producto=item.producto,
-                        cantidad=item.cantidad,
-                        precio_unitario=precio_unitario,
-                        subtotal=precio_unitario * item.cantidad
-                    )
-                
-                # Enviar notificación por correo
-                enviar_notificacion_compra(request.user, None, total)  # None porque son múltiples productos
-                
-                # Limpiar el carrito
-                carrito_items.delete()
-                
-                messages.success(request, f'¡Compra realizada exitosamente! Total: ${total:,.2f}')
-                return redirect('ver_carrito')
-                
-            except Exception as e:
-                messages.error(request, f'Error al procesar la compra: {str(e)}')
-                return redirect('ver_carrito')
-    else:
-        form = VentaForm()
-    
-    # Calcular total y subtotales para mostrar
     total = Decimal('0')
     items_con_subtotal = []
     
+    # Calcular el total antes de cualquier cosa
     for item in carrito_items:
         try:
-            if item.producto.precio:
-                precio_limpio = str(item.producto.precio).replace('$', '').replace(',', '').replace(' ', '')
-                precio_num = Decimal(precio_limpio)
-            else:
-                precio_num = Decimal('0')
+            precio_num = Decimal(str(procesar_precio(item.producto.precio)))
         except (ValueError, AttributeError, InvalidOperation):
             precio_num = Decimal('0')
         
@@ -1106,8 +1080,56 @@ def finalizar_compra(request):
             'subtotal': subtotal
         })
     
+    # Si es un POST, procesamos la venta
+    if request.method == 'POST':
+        form = VentaForm(request.POST)
+        if form.is_valid():
+            try:
+                metodo_pago = form.cleaned_data['metodo_pago']
+                
+                # Crear la venta
+                venta = Venta.objects.create(
+                    cliente=request.user,
+                    vendedor=request.user,  # Si luego tienes un modelo de vendedor, se cambia
+                    total=total,
+                    metodo_pago=metodo_pago,
+                    estado='completada'
+                )
+                
+                # Crear los detalles de venta
+                for item in carrito_items:
+                    precio_unitario = Decimal(str(procesar_precio(item.producto.precio)))
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        producto=item.producto,
+                        cantidad=item.cantidad,
+                        precio_unitario=precio_unitario,
+                        subtotal=precio_unitario * item.cantidad
+                    )
+                
+                # Enviar notificación
+                enviar_notificacion_compra(request.user, None, total)
+                
+                # Vaciar carrito
+                carrito_items.delete()
+                
+                messages.success(request, f'¡Compra realizada exitosamente! Total: ${total:,.2f}')
+                
+                return render(request, 'core/compra_exitosa.html', {
+                    'total': total,
+                    'numero_factura': venta.numero_factura,
+                    'fecha_compra': venta.fecha_venta,
+                    'metodo_pago': venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
+                })
+            except Exception as e:
+                messages.error(request, f'Error al procesar la compra: {str(e)}')
+                return redirect('ver_carrito')
+    else:
+        form = VentaForm()
+    
+    # GET → mostrar resumen de compra
     return render(request, 'core/finalizar_compra.html', {
         'form': form,
-        'total': total,
-        'items': items_con_subtotal
+        'items': items_con_subtotal,
+        'total': total
     })

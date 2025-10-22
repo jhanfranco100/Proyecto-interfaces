@@ -4,139 +4,89 @@
 {% block title %}Finalizar Compra{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-shopping-cart"></i> Finalizar Compra</h2>
-                <a href="{% url 'ver_carrito' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Volver al Carrito
-                </a>
-            </div>
+<head> 
+    <link rel="stylesheet" href="{% static 'cliente/finalizar_compra.css' %}">
+</head>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+                    <!-- Título principal -->
+                    <h2 class="card-title text-center text-primary mb-4">
+                        <i class="fas fa-shopping-cart me-2"></i>Resumen de tu Compra
+                    </h2>
 
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Resumen de la Compra</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio Unitario</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in items %}
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        {% if item.producto.photo %}
-                                                            <img src="{{ item.producto.photo.url }}" alt="{{ item.producto.nombre }}" 
-                                                                 class="img-thumbnail me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                                                        {% endif %}
-                                                        <div>
-                                                            <strong>{{ item.producto.nombre }}</strong>
-                                                            <br>
-                                                            <small class="text-muted">{{ item.producto.categoria|title }}</small>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <form method="post" action="{% url 'actualizar_cantidad' item.id %}">
-                                                        {% csrf_token %}
-                                                        <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" 
-                                                            class="form-control form-control-sm text-center" style="width: 70px;">
-                                                        <button type="submit" class="btn btn-sm btn-outline-primary mt-1">
-                                                            <i class="fas fa-sync-alt"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
+                    <!-- Tabla de productos -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.producto.nombre }}</td>
+                                    <td class="text-center">{{ item.cantidad }}</td>
+                                    <td class="text-end">${{ item.precio|floatformat:2 }}</td>
+                                    <td class="text-end">${{ item.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-success">
+                                    <th colspan="3" class="text-end">Total:</th>
+                                    <th class="text-end">${{ total|floatformat:2 }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
 
-                                                <td>${{ item.precio|floatformat:2 }}</td>
-                                                <td>
-                                                    ${{ item.subtotal|floatformat:2 }}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                    <!-- Formulario de método de pago -->
+                    <form method="POST" class="mt-3">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_metodo_pago" class="form-label fw-bold">
+                                <i class="fas fa-credit-card me-2"></i>Método de Pago
+                            </label>
+                            {{ form.metodo_pago }}
                         </div>
+
+                        <!-- Botón de confirmar -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-success btn-lg me-md-2">
+                                <i class="fas fa-check-circle me-2"></i>Confirmar Compra
+                            </button>
+                            <a href="{% url 'ver_carrito' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Información adicional -->
+                    <div class="alert alert-info mt-4 mb-0">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-info-circle me-2"></i>Importante
+                        </h6>
+                        <p class="mb-1">
+                            Al confirmar tu compra, recibirás un correo con los detalles de tu pedido.
+                        </p>
+                        <p class="mb-0">
+                            Asegúrate de verificar los productos y el método de pago antes de continuar.
+                        </p>
                     </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Método de Pago</h5>
-                        </div>
-                        <div class="card-body">
-                            <form method="post">
-                                {% csrf_token %}
-                                
-                                <div class="mb-3">
-                                    <label for="{{ form.metodo_pago.id_for_label }}" class="form-label">Selecciona tu método de pago *</label>
-                                    {{ form.metodo_pago }}
-                                    {% if form.metodo_pago.errors %}
-                                        <div class="text-danger">{{ form.metodo_pago.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <h5>Total:</h5>
-                                            <h5 class="text-primary">${{ total|floatformat:2 }}</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-grid mt-3">
-                                    <button type="submit" class="btn btn-success btn-lg">
-                                        <i class="fas fa-credit-card"></i> Confirmar Compra
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h6 class="mb-0">Información de Seguridad</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center text-success">
-                                <i class="fas fa-shield-alt me-2"></i>
-                                <small>Compra 100% segura</small>
-                            </div>
-                            <div class="d-flex align-items-center text-success mt-2">
-                                <i class="fas fa-truck me-2"></i>
-                                <small>Envío garantizado</small>
-                            </div>
-                            <div class="d-flex align-items-center text-success mt-2">
-                                <i class="fas fa-undo me-2"></i>
-                                <small>Devoluciones fáciles</small>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 {% endblock %}
