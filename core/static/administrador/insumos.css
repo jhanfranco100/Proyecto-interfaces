@@ -1,42 +1,41 @@
-
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        }
-        .sidebar .nav-link {
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 5px 0;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .btn-custom {
-            border-radius: 10px;
-            padding: 8px 16px;
-            font-weight: 500;
-        }
-        .stock-bajo {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-        }
-        .stock-normal {
-            background-color: #d1edff;
-            border-left: 4px solid #0dcaf0;
-        }
-        
+            .sidebar {
+                min-height: 100vh;
+                background: linear-gradient(135deg, #020202 0%, #525355 100%);
+            }
+            .sidebar .nav-link {
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                margin: 5px 0;
+                transition: all 0.3s;
+            }
+            .sidebar .nav-link:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            .sidebar .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            .main-content {
+                background-color: #f8f9fa;
+                min-height: 100vh;
+            }
+            .card {
+                border: none;
+                border-radius: 15px;
+               ;
+            }
+            .btn-custom {
+                border-radius: 10px;
+                padding: 8px 16px;
+                font-weight: 500;
+            }
+            .stock-bajo {
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+            }
+            .stock-normal {
+                background-color: #d1edff;
+                border-left: 4px solid #0dcaf0;
+            }
+            

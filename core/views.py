@@ -73,7 +73,7 @@ def home(request):
     context = {
         'page_title': 'Inicio',
     }
-    return render(request, 'core/home.html', context)
+    return render(request, 'core/principales/home.html', context)
 
 def redireccionar_usuario(request):
     """
@@ -112,7 +112,7 @@ def login_view(request):
     else:
         form = UsuarioAuthenticationForm()
     
-    return render(request, 'core/login.html', {'form': form})
+    return render(request, 'core/principales/login.html', {'form': form})
 def register_view(request):
     """
     Registro público: usa UsuariosCreationFormUsuarios.
@@ -147,7 +147,7 @@ def register_view(request):
     else:
         form = UsuariosCreationFormUsuarios()
 
-    return render(request, 'core/register.html', {'form': form})
+    return render(request, 'core/principales/registro.html', {'form': form})
 
 @login_required
 def logout_view(request):
@@ -158,7 +158,7 @@ def logout_view(request):
         return redirect('home')
     else:
         # Mostrar página de confirmación
-        return render(request, 'core/logout.html')
+        return render(request, 'core/principales/logout.html')
 
 
 def register_view(request):
@@ -184,7 +184,7 @@ def register_view(request):
     else:
         form = UsuariosCreationFormUsuarios()
     
-    return render(request, 'core/register.html', {'form': form})
+    return render(request, 'core/principales/registro.html', {'form': form})
 
 def motocicletas(request):
     query = request.GET.get('search')
@@ -302,7 +302,7 @@ def equipamentos(request):
         'filter': 'equipamento',
         'inventario': inventario,
     }
-    return render(request, 'core/equipamentos.html', context)
+    return render(request, 'core/accesorios/equipamentos.html', context)
 
 def aditamenes(request):
     inventario = Inventario.objects.filter(categoria__icontains='aditamenes')
@@ -311,7 +311,7 @@ def aditamenes(request):
         'filter': 'aditamenes',
         'inventario': inventario,
     }
-    return render(request, 'core/aditamenes.html', context)
+    return render(request, 'core/accesorios/aditamenes.html', context)
 
 
 def accesorios(request):
@@ -321,7 +321,7 @@ def accesorios(request):
         'filter': 'accesorios',
         'inventario': inventario,
     }
-    return render(request, 'core/accesorios.html', context)
+    return render(request, 'core/accesorios/accesorios.html', context)
 
 def repuestos(request):
     inventario = Inventario.objects.filter(categoria__icontains='Repuestos')
@@ -330,7 +330,7 @@ def repuestos(request):
         'filter': 'repuestos',
         'inventario': inventario,
     }
-    return render(request, 'core/repuestos.html', context)
+    return render(request, 'core/accesorios/repuestos.html', context)
 
 
 
@@ -348,16 +348,16 @@ def search(request):
                     'query': producto,
                     
                 }
-                return render(request, 'core/search.html', context)
+                return render(request, 'core/principales/search.html', context)
             else:
                 msj = 'Artículo no encontrado'
-                return render(request, 'core/search.html', {'msj': msj, 'query': producto})
+                return render(request, 'core/principales/search.html', {'msj': msj, 'query': producto})
         else:
             msj = 'No has ingresado ningún producto'
-            return render(request, 'core/search.html', {'msj': msj})
+            return render(request, 'core/principales/search.html', {'msj': msj})
     else:
         msj = 'No has buscado ningún producto'
-        return render(request, 'core/search.html', {'msj': msj})
+        return render(request, 'core/principales/search.html', {'msj': msj})
         
 def vermas(request, pk_object):
     
@@ -367,7 +367,7 @@ def vermas(request, pk_object):
         'objeto': objeto,
         'metodos_pago': metodos_pago,
     }
-    return render(request, 'core/VerMas.html', data)
+    return render(request, 'core/principales/VerMas.html', data)
     
 
 def contacto(request):
@@ -385,7 +385,7 @@ def contacto(request):
             context['mensaje'] = 'Nos contactaremos contigo lo mas pronto posible'
         else:
             context['form'] = formulario
-    return render(request, 'core/contactar.html', context)
+    return render(request, 'core/principales/contactar.html', context)
 
 
 @login_required
@@ -399,16 +399,22 @@ def perfil(request):
             return redirect('perfil')
     else:
         form = PerfilForm(instance=usuario)
-    return render(request, 'core/perfil.html', {'form': form})
+    return render(request, 'core/cliente/perfil.html', {'form': form})
 
 @login_required
 def notificaciones(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha_creacion')
-    return render(request, 'core/notificaciones.html', {'notificaciones': notificaciones})
+    return render(request, 'core/principales/notificaciones.html', {'notificaciones': notificaciones})
 
+
+def agregar_al_carrito(request, producto_id):
+    
+   
+    messages.success(request, "Producto añadido correctamente")
+    return redirect('ver_carrito', producto_id=producto_id)
 @login_required
 def carrito(request):
-    # Redirigir a ver_carrito que tiene la lógica completa
+    
     return redirect('ver_carrito')
 
 @login_required
@@ -462,7 +468,7 @@ def comprar(request, pk_object):
             messages.warning(request, f'¡Compra realizada! Has comprado {objeto.nombre}, pero el precio no se pudo procesar correctamente. Precio original: "{objeto.precio}"')
         
         # Mostrar mensaje de compra exitosa en lugar de redirigir
-        return render(request, 'core/compra_exitosa.html', {
+        return render(request, 'core/cliente/compra_exitosa.html', {
             'total': precio_unitario,
             'numero_factura': venta.numero_factura,
             'fecha_compra': venta.fecha_venta,
@@ -552,7 +558,7 @@ def vendedor_venta(request):
 @login_required
 @user_passes_test(es_admin)
 def admin_dashboard(request):
-    # Contadores principales
+    
     total_productos = Inventario.objects.count()
     total_usuarios = Usuarios.objects.count()
     total_ventas = Venta.objects.count()
@@ -707,7 +713,8 @@ def generar_reporte_ventas_pdf(request):
         elements.append(ventas_table)
     else:
         elements.append(Paragraph("No hay ventas registradas.", styles['Normal']))
-    
+
+    messages.success(request, "Reporte de ventas generado correctamente.")
     # Construir el PDF
     doc.build(elements)
     return response

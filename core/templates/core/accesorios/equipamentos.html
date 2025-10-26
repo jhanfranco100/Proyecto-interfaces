@@ -3,19 +3,19 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'motos/motos.css' %}">
 
-<div class="fil">
+<div class="fil" style="margin: auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; overflow: auto; margin-bottom: 56px;">
   {% for item in inventario %}
-    {% if item.sub_categoria == 'todoterreno' %}
+    {% if item.categoria == 'equipamento' %}
       <div class="box">
         <div class="img-container" style="background-image: url('{{ item.photo.url }}');"></div>
         <div class="info">
           <h5>{{ item.nombre }}</h5>
           <h6>${{ item.precio }}</h6>
-          <a href="{% url 'vermas' item.id %}" class="btn btn-dark">Ver más</a>
+          <a href="{% url 'vermas' item.id %}" class="btn btn-dark" style="margin-bottom: 20px;">Ver más</a>
         </div>
       </div>
     {% endif %}
   {% endfor %}
 </div>
 
-{% endblock %} 
+{% endblock %}

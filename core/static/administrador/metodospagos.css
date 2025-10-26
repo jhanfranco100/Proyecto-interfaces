@@ -1,0 +1,35 @@
+.card {
+    background-color: #121212; /* negro oscuro */
+    color: #fff;               /* texto blanco */
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.card-header {
+    background-color: #1c1c1c; /* ligeramente más claro que la tarjeta */
+    color: #fff;
+    border-bottom: 1px solid #333;
+}
+
+.form-label {
+    color: #fff;
+}
+
+.form-control {
+    background-color: #1c1c1c;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.form-control:focus {
+    background-color: #1c1c1c;
+    color: #fff;
+    border-color: #f21b54; /* resalta en rojo al enfocar */
+    box-shadow: 0 0 0 0.2rem rgba(242, 27, 84, 0.25);
+}
+
+.form-check-label {
+    color: #fff;
+}

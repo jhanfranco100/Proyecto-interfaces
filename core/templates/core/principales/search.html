@@ -1,0 +1,30 @@
+{% extends 'core/principales/basetemplates.html' %} 
+{% block content %}
+<div class="container">
+  {% if articulos %}
+    <h1 class="text-center">{{ query }}</h1>
+    <p class="text-center">Artículos encontrados: {{ articulos|length }} artículos</p>
+    <div class="row justify-content-center">
+      {% for articulo in articulos %}
+        <div class="col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
+          <div class="card h-100 border rounded shadow-sm" style="max-width: 300px;">
+            <img
+              src="{{ articulo.photo.url }}"
+              class="card-img-top"
+              alt="{{ articulo.nombre }}"
+              style="height: 200px; object-fit: contain;"
+            />
+            <div class="card-body text-center">
+              <h5 class="card-title">{{ articulo.nombre }}</h5>
+              <p class="card-text">{{ articulo.descripcion|truncatewords:20 }}</p>
+              <a href="{% url 'vermas' articulo.id %}" class="btn btn-dark">Ver más</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">{{ msj }}</p>
+  {% endif %}
+</div>
+{% endblock %}

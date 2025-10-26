@@ -16,9 +16,10 @@
             <div class="card-body">
               <p class="text-muted">Genera reportes detallados del inventario disponible.</p>
               <div class="d-grid gap-2">
-                <a href="{% url 'generar_reporte_inventario_pdf' %}" class="btn btn-outline-primary">
-                  <i class="fas fa-download me-1"></i>Descargar Reporte de Inventario (PDF)
-                </a>
+                <a href="{% url 'generar_reporte_ventas_pdf' %}" class="btn btn-danger"
+                onclick="alert('Reporte de ventas generado correctamente y comenzará la descarga');">
+                  <i class="fas fa-download me-2"></i>Descargar Reporte de Ventas
+              </a>
                 <a href="{% url 'generar_reporte_ventas_pdf' %}" class="btn btn-outline-success">
                   <i class="fas fa-chart-bar me-1"></i>Descargar Reporte de Ventas (PDF)
                 </a>
@@ -29,6 +30,16 @@
             </div>
           </div>
         </div>
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+          {% for message in messages %}
+            <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body">
+                  {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>
         
         <div class="col-md-6">
           <div class="card">
@@ -108,6 +119,7 @@ function generarReporte(tipo) {
   // Por ahora solo mostramos un mensaje, después se puede implementar la generación real
   alert(`Generando reporte de ${tipo} en formato ${formato}${fechaInicio ? ` desde ${fechaInicio}` : ''}${fechaFin ? ` hasta ${fechaFin}` : ''}`);
 }
+
 </script>
 {% endblock %}
 

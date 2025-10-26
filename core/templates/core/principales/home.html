@@ -1,0 +1,81 @@
+{% extends 'core/principales/basetemplates.html' %}
+{% block content %}
+
+<div class="carousel-container">
+
+    <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active" 
+                 style="background-image: url('https://www.incolmotos-yamaha.com.co/wp-content/uploads/2024/02/bannerfz15v3.jpg');">
+            </div>
+            <div class="carousel-item" 
+                 style="background-image: url('https://www.incolmotos-yamaha.com.co/wp-content/uploads/2024/05/bannerHomeRaptor110.jpg');">
+            </div>
+            <div class="carousel-item" 
+                 style="background-image: url('https://www.incolmotos-yamaha.com.co/wp-content/uploads/2019/09/xmax2024_nuevoscolores.jpg');">
+            </div>
+        </div>
+
+        <!-- Flechas de navegación -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+</div>
+
+<style>
+/* Contenedor centrado y con espacio arriba y abajo */
+.carousel-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+
+/* Carrusel con ancho fijo */
+#carouselExampleFade {
+    width: 700px;
+    position: relative;
+}
+
+/* Items del carrusel */
+.carousel-inner .carousel-item {
+    height: 400px; /* altura deseada */
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Flechas de navegación sobre la imagen */
+#carouselExampleFade .carousel-control-prev,
+#carouselExampleFade .carousel-control-next {
+    width: 5%; /* ancho de las flechas */
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+    #carouselExampleFade {
+        width: 90%; /* ancho ajustable en tablets */
+    }
+    .carousel-inner .carousel-item {
+        height: 250px; /* altura menor */
+    }
+}
+
+@media (max-width: 576px) {
+    #carouselExampleFade {
+        width: 100%; /* móvil ancho completo */
+    }
+    .carousel-inner .carousel-item {
+        height: 180px; 
+    }
+}
+</style>
+
+{% endblock %}

@@ -1,7 +1,6 @@
-
 .sidebar {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
 }
 .sidebar .nav-link {
     color: white;
@@ -14,6 +13,12 @@
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
 }
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+            .btn-c
 .sidebar .nav-link.active {
     background-color: rgba(255, 255, 255, 0.2);
 }
@@ -35,5 +40,7 @@
     background-color: #eef4ff;
 }
 .table-dark th {
-    background-color: #2a5298 !important;
+    background-color: #0f0f0f !important;
 }
+
+

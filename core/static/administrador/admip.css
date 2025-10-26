@@ -1,87 +1,131 @@
+/* ======== SIDEBAR ======== */
 .sidebar {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
+    transition: all 0.3s ease;
+    padding-top: 20px;
 }
+
 .sidebar .nav-link {
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
     margin: 5px 0;
     transition: all 0.3s;
+    font-size: 15px;
+    font-weight: normal;
 }
+
 .sidebar .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
 }
+
 .sidebar .nav-link.active {
     background-color: rgba(255, 255, 255, 0.2);
 }
+
+/* ======== CONTENIDO PRINCIPAL ======== */
 .main-content {
     background-color: #f8f9fa;
     min-height: 100vh;
+    transition: margin-left 0.3s ease;
+    padding: 20px;
 }
+
+/* ======== TARJETAS ======== */
 .card {
     border: none;
     border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+.stat-card,
+.card-gestion {
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
     color: white;
 }
+
+/* ======== BOTONES ======== */
 .btn-custom {
     border-radius: 10px;
     padding: 10px 20px;
     font-weight: 500;
 }
-.card-gestion {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-color: white;
-}
-.btn-ver-usuarios {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    transition: 0.3s;
-}
-
-.btn-ver-usuarios:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-    color: white;
-}
-.btn-registrar-usuarios {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    transition: 0.3s;
-}
-
-.btn-registrar-usuarios:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-    color: white;
-}
+.btn-ver-usuarios,
+.btn-registrar-usuarios,
+.btn-ver-insumos,
 .btn-registrar-insumos {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    transition: 0.3s;
-}
-.btn-ver-insumos {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
     color: white;
     border: none;
     transition: 0.3s;
 }
 
-.btn-ver-insumos:hover {
+.btn-ver-usuarios:hover,
+.btn-registrar-usuarios:hover,
+.btn-ver-insumos:hover,
+.btn-registrar-insumos:hover {
     opacity: 0.9;
     transform: scale(1.02);
     color: white;
 }
+
 .btn-reportes {
-    
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border: none;
+}
+
+/* ======== BOTÓN MENÚ HAMBURGUESA ======== */
+.menu-toggle {
+    display: none;
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+/* ======== RESPONSIVIDAD ======== */
+@media (max-width: 768px) {
+    /* Sidebar ocultable */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* Mostrar botón menú */
+    .menu-toggle {
+        display: inline-block;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 70px;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-custom {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .card {
+        margin: 10px;
+    }
 }

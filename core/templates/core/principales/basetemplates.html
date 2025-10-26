@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}KRONOMOTOS{% endblock %}</title>
+
+  <!-- CSS principal -->
+
+  <link rel="stylesheet" href="{% static 'global.css' %}" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Roboto:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
+
+ 
+</head>
+
+<body>
+  <!--NAVBAR RESPONSIVA -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top border-bottom border-3 border-black" data-bs-theme="dark">
+    <div class="container-fluid">
+      <!-- Logo -->
+      <a class="navbar-brand ms-3" href="{% url 'home' %}">
+        <img src="{% static 'img/logo.PNG' %}" width="150" height="61" alt="KRONOMOTOS Logo">
+      </a>
+
+      <!-- Botón hamburguesa (para móviles) -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Contenido del menú -->
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+          <li class="nav-item dropdown">
+            <button id="menu" class="btn m-2  dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+              MOTOCICLETAS
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'automatica' %}">AUTOMATICA</a></li>
+              <li><a class="dropdown-item" href="{% url 'enduro' %}">ENDURO</a></li>
+              <li><a class="dropdown-item" href="{% url 'superdeportivas' %}">SUPERDEPORTIVAS</a></li>
+              <li><a class="dropdown-item" href="{% url 'todoterreno' %}">TODOTERRENO</a></li>
+              <li><a class="dropdown-item" href="{% url 'deportivas' %}">DEPORTIVAS</a></li>
+              <li><a class="dropdown-item" href="{% url 'urbanas' %}">URBANAS</a></li>
+              <li><a class="dropdown-item" href="{% url 'cuatrimotos' %}">CUATRIMOTOS</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item m-2"><a class="nav-link  text-white" href="{% url 'accesorios' %}">ACCESORIOS</a></li>
+          <li class="nav-item m-2"><a class="nav-link  text-white" href="{% url 'repuestos' %}">REPUESTOS</a></li>
+          <li class="nav-item m-2"><a class="nav-link  text-white" href="{% url 'equipamentos' %}">EQUIPAMENTOS</a></li>
+          <li class="nav-item m-2"><a class="nav-link  text-white" href="{% url 'aditamenes' %}">ADITAMENTOS</a></li>
+          <li class="nav-item m-2"><a class="nav-link text-white" href="{% url 'contactar' %}">CONTACTANOS</a></li>
+        </ul>
+
+        <!--  Barra de búsqueda -->
+        <form action="/search/" method="get" class="d-flex mb-2 me-3">
+          {% csrf_token %}
+          <div class="input-group">
+            <input style="background: #e9e9e9;" name="search" type="text"
+              class="form-control border-0 text-black" placeholder="Buscar Productos" />
+            {% if page == 'search' %}
+              <input type="hidden" name="zona" value="{{ request.GET.zona }}">
+            {% else %}
+              <input type="hidden" name="zona" value="{{ filter }}">
+            {% endif %}
+            <button id="buscar" class="btn btn-outline-secondary border-0" type="submit">Buscar</button>
+          </div>
+        </form>
+
+        <!--Sesión -->
+        <ul class="navbar-nav ms-auto me-3">
+          {% if user.is_authenticated %}
+            <li class="nav-item m-2">
+              <a class="nav-link fw-bold text-white" href="{% url 'carrito' %}" title="Carrito">
+                <i class="fas fa-shopping-cart"></i>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle fw-bold text-white" href="#" data-bs-toggle="dropdown">
+                <i class="fas fa-user me-1"></i>{{ user.nombreCompleto|default:"Perfil" }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
+                <li><a class="dropdown-item" href="{% url 'notificaciones' %}">Notificaciones</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item m-2">
+              <a class="nav-link  text-white" href="{% url 'login' %}">INICIAR SESION</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!--CONTENIDO PRINCIPAL -->
+  <main>
+    {% block content %}{% endblock %}
+    {% if messages %}
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+      {% for message in messages %}
+        <div class="toast align-items-center custom-toast border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+ 
+{% endif %}
+
+  </main>
+
+  <!--  FOOTER -->
+  <footer class="bg-black text-white text-center py-4 mt-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-6 col-md-3 mb-3"><h5>POLÍTICA DE SEGURIDAD</h5></div>
+        <div class="col-6 col-md-3 mb-3"><h5>CORPORATIVO</h5></div>
+        <div class="col-6 col-md-3 mb-3"><h5>SERVICIOS</h5></div>
+        <div class="col-6 col-md-3 mb-3"><h5>SERVICIO AL CLIENTE</h5></div>
+      </div>
+
+      <div class="mt-3">
+        <p><a href="#" class="text-white text-decoration-underline">Ver términos y condiciones</a></p>
+        <ul class="list-unstyled d-flex justify-content-center gap-3">
+          <li><a class="text-white" href="https://x.com/yamahacolombia" target="_blank"><i class="fa-brands fa-twitter fa-2x"></i></a></li>
+          <li><a class="text-white" href="https://web.facebook.com/yamahamotorcolombia/" target="_blank"><i class="fab fa-facebook-f fa-2x"></i></a></li>
+          <li><a class="text-white" href="https://www.instagram.com/yamahacolombia/" target="_blank"><i class="fab fa-instagram fa-2x"></i></a></li>
+          <li><a class="text-white" href="https://www.youtube.com/@YamahaMotorColombia" target="_blank"><i class="fa-brands fa-youtube fa-2x"></i></a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

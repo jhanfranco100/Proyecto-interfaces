@@ -2,7 +2,7 @@ from django import forms
 from .models import *
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-# Opciones para el tipo de usuario
+
 TIPO_CHOICES = (
     ('cliente', 'Cliente'),
     ('vendedor', 'Vendedor'),

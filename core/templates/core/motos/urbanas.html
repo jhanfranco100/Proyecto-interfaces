@@ -1,65 +1,21 @@
-{% extends 'core/basetemplates.html' %} 
+{% extends 'core/basetemplates.html' %}
 {% block content %}
-<style>
-    p{
-        font-size: small;
-    }
+{% load static %}
+<link rel="stylesheet" href="{% static 'motos/motos.css' %}">
 
-    .box:hover{
-        background-color: rgba(0, 0 ,0, 0.1);
-        box-shadow: 1px 1px 10px rgba(0, 0 ,0, 0.1);
-    }
-</style>
-
-<div
-  class="fil"
-  style="
-    margin: auto;
-    top: 25%;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    overflow: scroll;
-    margin-bottom: 56px;
-  "
->
-  {% for inventario in inventario %} 
-    {% if inventario.sub_categoria == 'urbanas' %}
-    <div
-      class="box"
-      style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        justify-content: end;
-        height: 600px;
-        width: 400px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: background-color 0.5s ease;
-        "
-      "
-    >
-      <div
-        style="
-        height: 300px;
-        width: 350px;
-        display: flex;
-        overflow: auto; 
-        background-image: url(' {{ inventario.photo.url }} '); 
-        background-repeat: no-repeat; 
-        background-size: 350px 300px;
-        margin-bottom: 10%;
-        ">
+<div class="fil">
+  {% for item in inventario %}
+    {% if item.sub_categoria == 'urbanas' %}
+      <div class="box">
+        <div class="img-container" style="background-image: url('{{ item.photo.url }}');"></div>
+        <div class="info">
+          <h5>{{ item.nombre }}</h5>
+          <h6>${{ item.precio }}</h6>
+          <a href="{% url 'vermas' item.id %}" class="btn btn-dark">Ver más</a>
+        </div>
       </div>
-      <div>
-        <h5 class="ms-3">{{ inventario.nombre }}</h5>
-        <h5>{{ inventario.precio }}</h5>
-        <a href="{% url 'vermas' inventario.id %}" class="ms-3 btn btn-dark" style="margin-bottom: 40%;">ver mas</a>
-      </div>
-    </div>
-    {% endif %} 
-  {% endfor %} 
+    {% endif %}
+  {% endfor %}
 </div>
+
 {% endblock %}
