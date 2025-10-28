@@ -1,0 +1,82 @@
+/* ======== CONTENIDO PRINCIPAL ======== */
+.main-content {
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+/* ======== TARJETAS ======== */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #020202 0%, #525355 100%);
+    color: white;
+}
+
+/* Headers de tarjetas */
+.card-header h5 {
+    color: #fff;
+}
+
+/* ======== BOTONES ======== */
+.btn-success {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s;
+}
+
+.btn-success:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #525355 0%, #020202 100%);
+    border: none;
+    color: white;
+}
+
+.btn-secondary:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/* Inputs y selects */
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #1e3c72;
+    box-shadow: 0 0 5px #1e3c72;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Textos e información de venta */
+#ventaInfo p, #ventaInfo h6, #ventaInfo h5 {
+    color: #fff;
+}
+
+.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Ventas recientes */
+.list-group-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: white;
+}
+
+.badge.bg-success {
+    background: #2a5298;
+    color: white;
+}
