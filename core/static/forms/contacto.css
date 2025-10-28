@@ -1,86 +1,80 @@
-
-.container {
-  position: relative;
-  max-width: 700px;
-  width: 100%;
-  background: #fff;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+/* Contenedor centrado */
+.contact-container {
+  max-width: 400px; /* ancho del formulario */
+  margin: 50px auto; /* centrado vertical y horizontal */
+  padding: 25px 20px;
+  background-color: #1a1a1a; /* fondo oscuro */
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  color: #fff;
+  font-family: 'Lato', sans-serif;
 }
-.container header {
-  font-size: 1.8rem;
-  color: #333;
-  font-weight: 500;
+
+/* Encabezado */
+.contact-container header {
   text-align: center;
-}
-.form {
-  margin-top: 30px;
-}
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-.input-box {
-  flex: 1;
-  min-width: calc(50% - 10px);
-  margin-top: 20px;
-}
-.input-box label {
-  color: #000;
-  font-weight: 500;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #00ff75;
 }
 
-.input-box input,
-.input-box textarea {
-  width: 100%;
-  height: 50px;
-  outline: none;
-  font-size: 1rem;
-  color: #707070;
-  margin-top: 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 0 15px;
+/* Formulario */
+.contact-container .form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.input-box textarea {
-  height: 100px;
+
+/* Inputs y textarea */
+.contact-container .form input,
+.contact-container .form textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background-color: #111;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.contact-container .form input:focus,
+.contact-container .form textarea:focus {
+  border-color: #00ff75;
+}
+
+/* Textarea más grande */
+.contact-container .form textarea {
+  min-height: 120px;
   resize: vertical;
 }
-.input-box input:focus,
-.input-box textarea:focus {
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+
+/* Mensaje de notificación */
+#noti {
+  text-align: center;
+  color: #00ff75;
+  font-weight: bold;
+  margin-top: 5px;
 }
-.textarea-box {
-  flex: 1 0 100%;
-}
-.form button {
-  height: 55px;
-  width: 100%;
+
+/* Botón enviar */
+button[type="submit"] {
+  padding: 12px;
+  background-color: #000;
   color: #fff;
-  font-size: 1rem;
-  font-weight: 400;
-  margin-top: 30px;
   border: none;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: #000;
-}
-.form button:hover {
-  background: #707070;
-} 
-
-#noti{
-  color: #000;
-}
-/*Responsive*/
-@media screen and (max-width: 500px) {
-  .form-row {
-    flex-direction: column;
-  }
-  .input-box {
-    min-width: 100%;
-  }
+  transition: 0.3s;
 }
 
+button[type="submit"]:hover {
+  background-color: #333;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .contact-container {
+    padding: 20px 15px;
+  }
+}

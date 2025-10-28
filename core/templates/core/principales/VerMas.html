@@ -1,4 +1,4 @@
-{% extends 'core/basetemplates.html' %} 
+{% extends 'core/principales/basetemplates.html' %} 
 {% load static %} 
 {% block content %}
 <link rel="stylesheet" href="{% static 'global.css' %}" />
@@ -28,10 +28,10 @@
     <h3>{{ objeto.precio }}</h3>
     <div class="mt-3">
       {% if user.is_authenticated %}
-        <a href="{% url 'agregar_al_carrito' objeto.id %}" class="btn btn-primary me-2">
+        <a href="{% url 'agregar_al_carrito' objeto.id %}" class="btn btn-secondary me-2">
           <i class="fas fa-shopping-cart me-1"></i>Añadir al carrito
         </a>
-        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#confirmarCompraModal">
+        <button type="button" class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#confirmarCompraModal">
           <i class="fas fa-credit-card me-1"></i>Comprar ahora
         </button>
         <a href="{% url 'cotizar' objeto.id %}" class="btn btn-outline-primary">
@@ -103,12 +103,8 @@
                 <span><strong>Precio:</strong></span>
                 <span class="text-success fs-5"><strong>{{ objeto.precio }}</strong></span>
               </div>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <label for="cantidad" class="form-label mb-0"><strong>Cantidad:</strong></label>
-                <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="50"
-                       class="form-control text-center" style="width: 100px;">
-              </div>
-              <hr>
+             
+             
               
               <!-- Selección de método de pago -->
               <div class="mb-3">
@@ -135,7 +131,7 @@
           </div>
           <div class="alert alert-info mt-3">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Información:</strong> Al confirmar la compra, se procesará el pago y recibirás una notificación por correo electrónico con los detalles de tu compra.
+            <strong>Información:</strong> Al confirmar la compra, se procesará el pago.
           </div>
         </form>
       </div>
@@ -143,7 +139,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="fas fa-times me-1"></i>Cancelar
         </button>
-        <button type="submit" form="compraForm" class="btn btn-success">
+        <button type="submit" form="compraForm" class="btn btn-dark">
           <i class="fas fa-check me-1"></i>Confirmar Compra
         </button>
       </div>
@@ -299,168 +295,3 @@
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Variables para el control 3D
-  let rotationX = 0;
-  let rotationY = 0;
-  let isDragging = false;
-  let previousMousePosition = { x: 0, y: 0 };
-  let autoRotate = false;
-  let autoRotateInterval;
-  
-  // Elementos del DOM
-  const productImage = document.getElementById('productImage');
-  const rotateLeft = document.getElementById('rotateLeft');
-  const rotateRight = document.getElementById('rotateRight');
-  const resetView = document.getElementById('resetView');
-  const autoRotateBtn = document.getElementById('autoRotate');
-  const viewer3d = document.getElementById('viewer3d');
-  
-  // Función para aplicar transformación 3D
-  function applyTransform() {
-    productImage.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg) scale3d(1, 1, 1)`;
-  }
-  
-  // Controles de rotación
-  rotateLeft.addEventListener('click', function() {
-    rotationY -= 45;
-    applyTransform();
-  });
-  
-  rotateRight.addEventListener('click', function() {
-    rotationY += 45;
-    applyTransform();
-  });
-  
-  resetView.addEventListener('click', function() {
-    rotationX = 0;
-    rotationY = 0;
-    applyTransform();
-  });
-  
-  autoRotateBtn.addEventListener('click', function() {
-    autoRotate = !autoRotate;
-    const icon = this.querySelector('i');
-    
-    if (autoRotate) {
-      icon.className = 'fas fa-pause';
-      this.classList.remove('btn-outline-success');
-      this.classList.add('btn-success');
-      
-      // Iniciar rotación automática
-      autoRotateInterval = setInterval(function() {
-        rotationY += 2;
-        applyTransform();
-      }, 50);
-    } else {
-      icon.className = 'fas fa-play';
-      this.classList.remove('btn-success');
-      this.classList.add('btn-outline-success');
-      
-      // Detener rotación automática
-      clearInterval(autoRotateInterval);
-    }
-  });
-  
-  // Controles de mouse
-  viewer3d.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    previousMousePosition = { x: e.clientX, y: e.clientY };
-    productImage.style.cursor = 'grabbing';
-  });
-  
-  document.addEventListener('mousemove', function(e) {
-    if (isDragging) {
-      const deltaX = e.clientX - previousMousePosition.x;
-      const deltaY = e.clientY - previousMousePosition.y;
-      
-      rotationY += deltaX * 0.5;
-      rotationX -= deltaY * 0.5;
-      
-      // Limitar rotación X
-      rotationX = Math.max(-60, Math.min(60, rotationX));
-      
-      applyTransform();
-      previousMousePosition = { x: e.clientX, y: e.clientY };
-    }
-  });
-  
-  document.addEventListener('mouseup', function() {
-    isDragging = false;
-    productImage.style.cursor = 'grab';
-  });
-  
-  // Controles táctiles
-  viewer3d.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    isDragging = true;
-    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  });
-  
-  document.addEventListener('touchmove', function(e) {
-    if (isDragging) {
-      e.preventDefault();
-      const deltaX = e.touches[0].clientX - previousMousePosition.x;
-      const deltaY = e.touches[0].clientY - previousMousePosition.y;
-      
-      rotationY += deltaX * 0.5;
-      rotationX -= deltaY * 0.5;
-      
-      // Limitar rotación X
-      rotationX = Math.max(-60, Math.min(60, rotationX));
-      
-      applyTransform();
-      previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
-  });
-  
-  document.addEventListener('touchend', function() {
-    isDragging = false;
-  });
-  
-  // Zoom con rueda del mouse
-  viewer3d.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    const scale = e.deltaY > 0 ? 0.9 : 1.1;
-    const currentScale = parseFloat(productImage.style.transform.match(/scale3d\(([^)]+)\)/) || ['', '1, 1, 1'])[1];
-    const newScale = Math.max(0.5, Math.min(2, parseFloat(currentScale.split(',')[0]) * scale));
-    productImage.style.transform = productImage.style.transform.replace(/scale3d\([^)]+\)/, `scale3d(${newScale}, ${newScale}, ${newScale})`);
-  });
-  
-  // Efecto de hover 3D
-  viewer3d.addEventListener('mouseenter', function() {
-    productImage.style.transition = 'transform 0.3s ease';
-  });
-  
-  viewer3d.addEventListener('mouseleave', function() {
-    productImage.style.transition = 'transform 0.3s ease';
-  });
-  
-  // Validación del formulario de compra
-  const compraForm = document.getElementById('compraForm');
-  const metodoPago = document.getElementById('metodo_pago');
-  
-  if (compraForm && metodoPago) {
-    compraForm.addEventListener('submit', function(e) {
-      if (!metodoPago.value) {
-        e.preventDefault();
-        metodoPago.classList.add('is-invalid');
-        metodoPago.focus();
-      } else {
-        metodoPago.classList.remove('is-invalid');
-      }
-    });
-    
-    // Remover validación cuando se selecciona un método
-    metodoPago.addEventListener('change', function() {
-      if (this.value) {
-        this.classList.remove('is-invalid');
-      }
-    });
-  }
-  
-  // Inicializar con transformación por defecto
-  applyTransform();
-});
-</script>

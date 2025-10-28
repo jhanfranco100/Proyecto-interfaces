@@ -13,7 +13,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    'kronomotos'
+    'kronomotos',
+    
+    'django.contrib.humanize'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,63 +1,38 @@
-{% extends 'core/basetemplates.html' %}
-{% block content %}
+{% extends 'core/principales/basetemplates.html' %}
 {% load static %}
-
-<head>
-  <title>Contacto</title>
-  <link rel="stylesheet" href="{% static '/forms/contacto.css' %}" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-
-<body>
-  <div class="container">
-    <header>Contactanos</header>
-    <form method="POST" class="form">
-      {% csrf_token %}
-      <div class="form-row">
-        <div class="input-box">
-          <label>Nombre</label>
-          {{ form.nombre }}
-        </div>
-
-        <div class="input-box">
-          <label>Apellido</label>
-          {{ form.apellido }}
-        </div>
-
-        <div class="input-box">
-          <label>Correo Electronico</label>
-          {{ form.correo }}
-        </div>
-
-        <div class="input-box">
-          <label>Dirección</label>
-          {{ form.direccion }}
-        </div>
-
-        <div class="input-box">
-          <label>Ciudad</label>
-          {{ form.ciudad }}
-        </div>
-
-        <div class="input-box">
-          <label>Telefono</label>
-          {{ form.telefono }}
-        </div>
-
-        <div class="input-box textarea-box">
-          <label>Mensaje</label>
-          {{ form.mensaje }}
-        </div>
-        
-        <div id="noti">
-          {{mensaje}} 
-        </div>  
-
-        <button type="submit">Enviar</button>
-      </div>
-      <input type="hidden" name="zona" value="{{ request.GET.zona }}" />
-    </form>  
-  </div>
-</body>
-
+<link rel="stylesheet" href="{% static 'forms/contacto.css' %}">
+{% block content %}
+<div class="contact-container">
+  <header>Contáctanos</header>
+  <form method="POST" class="form">
+    {% csrf_token %}
+    
+    <label>Nombre</label>
+    {{ form.nombre }}
+    
+    <label>Apellido</label>
+    {{ form.apellido }}
+    
+    <label>Correo Electrónico</label>
+    {{ form.correo }}
+    
+    <label>Dirección</label>
+    {{ form.direccion }}
+    
+    <label>Ciudad</label>
+    {{ form.ciudad }}
+    
+    <label>Teléfono</label>
+    {{ form.telefono }}
+    
+    <label>Mensaje</label>
+    {{ form.mensaje }}
+    
+    {% if mensaje %}
+      <div id="noti">{{ mensaje }}</div>
+    {% endif %}
+    
+    <button type="submit">Enviar</button>
+  </form>
+</div>
 {% endblock %}

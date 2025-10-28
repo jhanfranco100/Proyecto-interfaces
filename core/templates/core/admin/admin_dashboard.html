@@ -49,9 +49,13 @@
                         <a class="nav-link text-white" href="{% url 'home' %}">
                             <i class="fas fa-home me-2"></i>Ir al Sitio
                         </a>
-                        <a class="nav-link text-white" href="{% url 'logout' %}">
-                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                        </a>
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link text-white border-0 bg-transparent w-100 text-start">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </button>
+                        </form>
+                        
                     </nav>
                 </div>
             </div>
@@ -132,10 +136,10 @@
                             <div class="card-body">
                                 <p class="text-muted">Administra usuarios del sistema, roles y permisos.</p>
                                 <div class="d-grid gap-2">
-                                    <a href="{% url 'admin_usuarios' %}" class="btn btn-primary">
+                                    <a href="{% url 'admin_usuarios' %}" class="btn btn-primary btn-dark">
                                         <i class="fas fa-list"></i> Ver Usuarios
                                     </a>
-                                    <a href="{% url 'usuario_crear' %}" class="btn btn-success">
+                                    <a href="{% url 'usuario_crear' %}" class="btn  btn-secondary">
                                         <i class="fas fa-plus me-2"></i>Registrar Usuario
                                     </a>
                                 </div>
@@ -151,10 +155,10 @@
                             <div class="card-body">
                                 <p class="text-muted">Administra insumos, proveedores y control de stock.</p>
                                 <div class="d-grid gap-2">
-                                    <a href="{% url 'admin_insumos' %}" class="btn btn-warning">
+                                    <a href="{% url 'admin_insumos' %}" class="btn btn-warning btn-dark">
                                         <i class="fas fa-list me-2"></i>Ver Insumos
                                     </a>
-                                    <a href="{% url 'insumo_crear' %}" class="btn btn-success">
+                                    <a href="{% url 'insumo_crear' %}" class="btn  btn-secondary">
                                         <i class="fas fa-plus me-2"></i>Agregar Insumo
                                     </a>
                                 </div>
@@ -180,7 +184,7 @@
                             <div class="col-md-6 mb-3">
                                 <h6>Reporte de Inventario</h6>
                                 <p class="text-muted">Genera un reporte de productos disponibles en inventario.</p>
-                                <a href="{% url 'generar_reporte_inventario_pdf' %}" class="btn btn-info">
+                                <a href="{% url 'generar_reporte_inventario_pdf' %}" class="btn btn-danger">
                                     <i class="fas fa-download me-2"></i>Descargar Reporte de Inventario
                                 </a>
                             </div>

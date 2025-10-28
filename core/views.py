@@ -24,50 +24,31 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from django.utils import timezone
 
+import re
+
 def procesar_precio(precio_str):
-    """
-    Función helper para procesar precios almacenados como texto
-    """
+   
     if not precio_str:
-        return 0.0
-    
+        return 0
+
     try:
-        # Limpiar el precio removiendo símbolos comunes y texto adicional
-        precio_limpio = str(precio_str).replace('$', '').replace(',', '').replace(' ', '')
-        
-        # Remover texto adicional como "IVA INCLUIDO", "IVA", etc.
-        import re
-        # Buscar solo números y puntos
-        numeros = re.findall(r'[\d.]+', precio_limpio)
-        
-        if not numeros:
-            return 0.0
-        
-        # Tomar el primer número encontrado (el precio principal)
-        precio_numero = numeros[0]
-        
-        # Si el precio está vacío después de limpiar, usar 0
-        if not precio_numero or precio_numero == '':
-            return 0.0
-        
-        # Manejar diferentes formatos de números
-        # Si tiene múltiples puntos, probablemente son separadores de miles
-        if precio_numero.count('.') > 1:
-            # Remover todos los puntos y convertir
-            precio_sin_puntos = precio_numero.replace('.', '')
-            return float(precio_sin_puntos)
-        else:
-            # Un solo punto, puede ser decimal o separador de miles
-            # Si tiene más de 2 dígitos después del punto, probablemente es separador de miles
-            partes = precio_numero.split('.')
-            if len(partes) == 2 and len(partes[1]) > 2:
-                # Es separador de miles, remover el punto
-                return float(precio_numero.replace('.', ''))
-            else:
-                # Es decimal, mantener el punto
-                return float(precio_numero)
+        # Eliminar símbolos de moneda y espacios
+        precio_limpio = str(precio_str).replace('$', '').replace(' ', '')
+
+        # Remover los puntos de miles
+        precio_limpio = precio_limpio.replace('.', '')
+
+        # Quitar la coma y todo lo que viene después
+        if ',' in precio_limpio:
+            precio_limpio = precio_limpio.split(',')[0]
+
+        # Convertir a entero
+        precio_final = int(precio_limpio)
+        return precio_final
+
     except (ValueError, AttributeError):
-        return 0.0
+        return 0
+
 
 def home(request):
     context = {
@@ -103,7 +84,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'¡Bienvenido, {user.nombreCompleto}!')
+                messages.success(request, f'¡HOLA,MUCHAS GRACIAS POR INICIAR SESION, {user.nombreCompleto .upper()}!')
                 return redirect('redireccionar_usuario')
             else:
                 messages.error(request, 'Credenciales inválidas. Inténtalo de nuevo.')
@@ -158,7 +139,7 @@ def logout_view(request):
         return redirect('home')
     else:
         # Mostrar página de confirmación
-        return render(request, 'core/principales/logout.html')
+        return render(request, 'core/principales/home.html')
 
 
 def register_view(request):
