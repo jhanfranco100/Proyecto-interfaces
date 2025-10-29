@@ -1,11 +1,11 @@
-from django.shortcuts import render
+
 from django.conf import settings
 import os
 from django.db.models import F, FloatField
 from django.db.models.functions import Cast
 
 from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.urls import reverse
@@ -449,16 +449,21 @@ def comprar(request, pk_object):
             messages.warning(request, f'¡Compra realizada! Has comprado {objeto.nombre}, pero el precio no se pudo procesar correctamente. Precio original: "{objeto.precio}"')
         
         # Mostrar mensaje de compra exitosa en lugar de redirigir
-        return render(request, 'core/cliente/compra_exitosa.html', {
+        return render(request, 'core/compra_exitosa.html', {
             'total': precio_unitario,
             'numero_factura': venta.numero_factura,
             'fecha_compra': venta.fecha_venta,
-            'metodo_pago': venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
+             'metodo_pago': venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
         })
+
         
     except Exception as e:
         messages.error(request, f'Error al procesar la compra: {str(e)}')
-        return redirect('perfil')
+        return redirect('compra_exitosa.html')
+
+
+def compra_exitosa(request):
+    return render(request, 'compra_exitosa.html')
 
 @login_required
 def cotizar(request, pk_object):

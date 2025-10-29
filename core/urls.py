@@ -32,6 +32,8 @@ urlpatterns = [
     path('carrito/actualizar/<int:pk_object>/', actualizar_cantidad_carrito, name='actualizar_cantidad_carrito'),
     path('carrito/finalizar/', finalizar_compra, name='finalizar_compra'),
     path('comprar/<int:pk_object>/', comprar, name='comprar'),
+    path('compra-exitosa/', compra_exitosa, name='compra_exitosa'),
+
     path('cotizar/<int:pk_object>/', cotizar, name='cotizar'),
     path('vendedor/', vendedor, name='vendedor'),
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
