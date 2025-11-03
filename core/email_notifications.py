@@ -79,6 +79,7 @@ def enviar_notificacion_correo(usuario, titulo, mensaje, tipo='info'):
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[usuario.correo]
         )
+        msg.encoding = 'utf-8'
         msg.attach_alternative(html_message, "text/html")
         
         # Enviar el correo

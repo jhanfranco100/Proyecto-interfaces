@@ -76,7 +76,7 @@ class Inventario(models.Model):
     potenciaMaxima = models.CharField(max_length=40, null=True, blank=True)    
     torqueMaximo =  models.CharField(max_length=40, null=True, blank=True)
     tipoDeMotor =  models.CharField(max_length=180, null=True, blank=True)
-    precio = models.CharField(max_length=60, null=True, blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
     photo = models.ImageField(upload_to='inventario/')
     categoria = models.CharField(max_length=32, default='', choices=categoria, blank=True)
     sub_categoria = models.CharField(max_length=32, default='', choices=sub_categoria, blank=True)

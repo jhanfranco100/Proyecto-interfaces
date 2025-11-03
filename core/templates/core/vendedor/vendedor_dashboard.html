@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load number_filters %}
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -162,7 +163,7 @@
                                             <select class="form-select" id="producto">
                                                 <option value="">Seleccione un producto</option>
                                                 {% for item in inventario %}
-                                                    <option value="{{ item.id }}" data-precio="{{ item.precio }}">{{ item.nombre }} - {{ item.precio }}</option>
+                                                    <option value="{{ item.id }}" data-precio="{{ item.precio|format_price }}">{{ item.nombre }} - ${{ item.precio|format_price }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -237,7 +238,7 @@
                                                         <tr>
                                                             <td>{{ venta.cliente.nombreCompleto }}</td>
                                                             <td>{{ venta.fecha_venta|date:"d/m/Y H:i" }}</td>
-                                                            <td>${{ venta.total|floatformat:2 }}</td>
+                                                            <td>${{ venta.total|format_price }}</td>
                                                             <td>
                                                                 <span class="badge bg-success">{{ venta.estado|title }}</span>
                                                             </td>
@@ -273,7 +274,7 @@
                                                     <br>
                                                     <small class="text-muted">{{ item.categoria|title }}</small>
                                                 </div>
-                                                <span class="badge bg-primary rounded-pill">{{ item.precio }}</span>
+                                                <span class="badge bg-primary rounded-pill">${{ item.precio|format_price }}</span>
                                             </div>
                                         {% empty %}
                                             <div class="text-center text-muted">

@@ -1,7 +1,6 @@
-{% extends 'core/principales/basetemplates.html' %}
+{% extends 'core/principales/basetemplates.html' %} 
 {% load static %}
-
-{% block title %}Compra Exitosa{% endblock %}
+{% load number_filters %}{% block title %}Compra Exitosa{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -35,7 +34,7 @@
                                 <strong>Total Pagado:</strong>
                             </div>
                             <div class="col-6">
-                                ${{ total|floatformat:2 }}
+                                ${{ total|format_price }}
                             </div>
                         </div>
                         <div class="row text-start">

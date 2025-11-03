@@ -28,25 +28,13 @@ import re
 
 def procesar_precio(precio_str):
    
-    if not precio_str:
+    if precio_str is None:
         return 0
 
     try:
-        # Eliminar símbolos de moneda y espacios
-        precio_limpio = str(precio_str).replace('$', '').replace(' ', '')
+        return float(precio_str)
 
-        # Remover los puntos de miles
-        precio_limpio = precio_limpio.replace('.', '')
-
-        # Quitar la coma y todo lo que viene después
-        if ',' in precio_limpio:
-            precio_limpio = precio_limpio.split(',')[0]
-
-        # Convertir a entero
-        precio_final = int(precio_limpio)
-        return precio_final
-
-    except (ValueError, AttributeError):
+    except (ValueError, TypeError):
         return 0
 
 
@@ -112,14 +100,13 @@ def register_view(request):
             # Enviar notificación de bienvenida por correo
             try:
                 enviar_notificacion_bienvenida(usuario)
-            except Exception:
-                # No detener el flujo si falla el envío de correo
-                pass
+            except Exception as e:
+                messages.warning(request, f'El correo de bienvenida no pudo ser enviado. Error: {e}')
             # Notificar a administradores sobre el nuevo usuario
             try:
                 notificar_admin_nuevo_usuario(usuario)
-            except Exception:
-                pass
+            except Exception as e:
+                messages.warning(request, f'La notificación a los administradores no pudo ser enviada. Error: {e}')
 
             messages.success(request, f'¡Registro exitoso como {usuario.tipo}! Ya puedes iniciar sesión.')
             return redirect('login')
@@ -132,40 +119,10 @@ def register_view(request):
 
 @login_required
 def logout_view(request):
-    if request.method == 'POST':
-        user_name = request.user.nombreCompleto
-        logout(request)
-        messages.success(request, f'¡Hasta luego, {user_name}! Has cerrado sesión exitosamente.')
-        return redirect('home')
-    else:
-        # Mostrar página de confirmación
-        return render(request, 'core/principales/home.html')
-
-
-def register_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    
-    if request.method == 'POST':
-        form = UsuariosCreationFormUsuarios(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # El tipo de usuario ya se establece desde el formulario
-            
-            # Enviar notificación de bienvenida por correo
-            enviar_notificacion_bienvenida(user)
-            
-            # Notificar a administradores sobre el nuevo usuario
-            notificar_admin_nuevo_usuario(user)
-            
-            messages.success(request, f'¡Registro exitoso como {user.tipo}! Ya puedes iniciar sesión.')
-            return redirect('login')
-        else:
-            messages.error(request, 'Por favor, corrige los errores en el formulario.')
-    else:
-        form = UsuariosCreationFormUsuarios()
-    
-    return render(request, 'core/principales/registro.html', {'form': form})
+    user_name = request.user.nombreCompleto
+    logout(request)
+    messages.success(request, f'¡Hasta luego, {user_name}! Has cerrado sesión exitosamente.')
+    return redirect('home')
 
 def motocicletas(request):
     query = request.GET.get('search')
@@ -241,6 +198,15 @@ def deportivas(request):
     if query:
         inventario = inventario.filter(sub_categoria__icontains='deportivas')
 
+    for item in inventario:
+        try:
+            # Accessing the price will trigger the conversion
+            _ = item.precio
+        except Exception as e:
+            # Print the item that is causing the error
+            print(f"Error processing item: {item.id}, price: {repr(item.precio)}")
+            raise e
+
     context = {
         'filter': 'deportivas',
         'inventario': inventario,
@@ -268,6 +234,15 @@ def cuatrimotos(request):
 
     if query:
         inventario = inventario.filter(sub_categoria__icontains='cuatrimotos')
+
+    for item in inventario:
+        try:
+            # Accessing the price will trigger the conversion
+            _ = item.precio
+        except Exception as e:
+            # Print the item that is causing the error
+            print(f"Error processing item: {item.id}, price: {repr(item.precio)}")
+            raise e
 
     context = {
         'filter': 'cuatrimotos',
@@ -450,7 +425,7 @@ def comprar(request, pk_object):
         
         # Mostrar mensaje de compra exitosa en lugar de redirigir
         return render(request, 'core/compra_exitosa.html', {
-            'total': precio_unitario,
+            'total': f'{precio_unitario:,.2f}',
             'numero_factura': venta.numero_factura,
             'fecha_compra': venta.fecha_venta,
              'metodo_pago': venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
@@ -600,202 +575,214 @@ def reportes_pdf(request):
 @login_required
 @user_passes_test(es_admin)
 def generar_reporte_ventas_pdf(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="reporte_ventas.pdf"'
-    
-    # Crear el documento PDF
-    doc = SimpleDocTemplate(response, pagesize=letter)
-    elements = []
-    
-    logo_path = os.path.join(settings.BASE_DIR, 'core', 'static', 'img', 'logo.png')
+    if request.method == 'POST':
+        ventas = Venta.objects.all()
+        if not ventas.exists():
+            messages.warning(request, "No hay ventas para generar un reporte.")
+            return redirect('reportes_pdf')
 
-# Verifica si el archivo existe
-    if os.path.exists(logo_path):
-        logo = Image(logo_path, width=120, height=60)
-        logo.hAlign = 'CENTER'
-        # Hacer el logo más opaco (transparencia)
-        logo._opacity = 0.10 # 0.7 = 70% de opacidad (30% transparente)
-        elements.append(logo)
-    elements.append(Spacer(1, 15))
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="reporte_ventas.pdf"'
+        
+        # Crear el documento PDF
+        doc = SimpleDocTemplate(response, pagesize=letter)
+        elements = []
+        
+        logo_path = os.path.join(settings.BASE_DIR, 'core', 'static', 'img', 'logo.png')
 
-    
-    # Estilos
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=18,
-        spaceAfter=30,
-        alignment=1  # Centrado
-    )
-    
-    # Título
-    elements.append(Paragraph("REPORTE DE VENTAS - kronomotos", title_style))
-    elements.append(Spacer(1, 20))
-    
-    # Fecha del reporte
-    fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
-    elements.append(Paragraph(f"Fecha de generación: {fecha_actual}", styles['Normal']))
-    elements.append(Spacer(1, 20))
-    
-    # Estadísticas generales
-    total_ventas = Venta.objects.count()
-    total_ingresos = sum(float(venta.total) for venta in Venta.objects.all())
-    ventas_completadas = Venta.objects.filter(estado='completada').count()
-    
-    stats_data = [
-        ['Total de Ventas', str(total_ventas)],
-        ['Ventas Completadas', str(ventas_completadas)],
-        ['Ingresos Totales', f"${total_ingresos:,.2f}"]
-    ]
-    
-    stats_table = Table(stats_data, colWidths=[3*inch, 2*inch])
-    stats_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 14),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    elements.append(stats_table)
-    elements.append(Spacer(1, 30))
-    
-    # Detalle de ventas recientes
-    elements.append(Paragraph("VENTAS RECIENTES", styles['Heading2']))
-    elements.append(Spacer(1, 10))
-    
-    ventas_recientes = Venta.objects.all().order_by('-fecha_venta')[:20]
-    
-    if ventas_recientes:
-        ventas_data = [['Fecha', 'Cliente', 'Vendedor', 'Total', 'Estado', 'Método Pago']]
+    # Verifica si el archivo existe
+        if os.path.exists(logo_path):
+            logo = Image(logo_path, width=120, height=60)
+            logo.hAlign = 'CENTER'
+            # Hacer el logo más opaco (transparencia)
+            logo._opacity = 0.10 # 0.7 = 70% de opacidad (30% transparente)
+            elements.append(logo)
+        elements.append(Spacer(1, 15))
+
         
-        for venta in ventas_recientes:
-            ventas_data.append([
-                venta.fecha_venta.strftime("%d/%m/%Y"),
-                venta.cliente.nombreCompleto if venta.cliente else 'N/A',
-                venta.vendedor.nombreCompleto,
-                f"${float(venta.total):,.2f}",
-                venta.estado.title(),
-                venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
-            ])
+        # Estilos
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=1  # Centrado
+        )
         
-        ventas_table = Table(ventas_data, colWidths=[1*inch, 1.5*inch, 1.5*inch, 1*inch, 1*inch, 1*inch])
-        ventas_table.setStyle(TableStyle([
+        # Título
+        elements.append(Paragraph("REPORTE DE VENTAS - kronomotos", title_style))
+        elements.append(Spacer(1, 20))
+        
+        # Fecha del reporte
+        fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
+        elements.append(Paragraph(f"Fecha de generación: {fecha_actual}", styles['Normal']))
+        elements.append(Spacer(1, 20))
+        
+        # Estadísticas generales
+        total_ventas = ventas.count()
+        total_ingresos = sum(float(venta.total) for venta in ventas)
+        ventas_completadas = ventas.filter(estado='completada').count()
+        
+        stats_data = [
+            ['Total de Ventas', str(total_ventas)],
+            ['Ventas Completadas', str(ventas_completadas)],
+            ['Ingresos Totales', f"${total_ingresos:,.2f}"]
+        ]
+        
+        stats_table = Table(stats_data, colWidths=[3*inch, 2*inch])
+        stats_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8)
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
         ]))
         
-        elements.append(ventas_table)
-    else:
-        elements.append(Paragraph("No hay ventas registradas.", styles['Normal']))
+        elements.append(stats_table)
+        elements.append(Spacer(1, 30))
+        
+        # Detalle de ventas recientes
+        elements.append(Paragraph("VENTAS RECIENTES", styles['Heading2']))
+        elements.append(Spacer(1, 10))
+        
+        ventas_recientes = ventas.order_by('-fecha_venta')[:20]
+        
+        if ventas_recientes:
+            ventas_data = [['Fecha', 'Cliente', 'Vendedor', 'Total', 'Estado', 'Método Pago']]
+            
+            for venta in ventas_recientes:
+                ventas_data.append([
+                    venta.fecha_venta.strftime("%d/%m/%Y"),
+                    venta.cliente.nombreCompleto if venta.cliente else 'N/A',
+                    venta.vendedor.nombreCompleto,
+                    f"${float(venta.total):,.2f}",
+                    venta.estado.title(),
+                    venta.metodo_pago.nombre if venta.metodo_pago else 'N/A'
+                ])
+            
+            ventas_table = Table(ventas_data, colWidths=[1*inch, 1.5*inch, 1.5*inch, 1*inch, 1*inch, 1*inch])
+            ventas_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 1), (-1, -1), 8)
+            ]))
+            
+            elements.append(ventas_table)
+        else:
+            elements.append(Paragraph("No hay ventas registradas.", styles['Normal']))
 
-    messages.success(request, "Reporte de ventas generado correctamente.")
-    # Construir el PDF
-    doc.build(elements)
-    return response
+        messages.success(request, "Reporte de ventas descargado correctamente.")
+        # Construir el PDF
+        doc.build(elements)
+        return response
+    return redirect('reportes_pdf')
 
 
 @login_required
 @user_passes_test(es_admin)
 def generar_reporte_inventario_pdf(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="reporte_inventario.pdf"'
-    
-    # Crear el documento PDF
-    doc = SimpleDocTemplate(response, pagesize=letter)
-    elements = []
-    
-    # Estilos
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=18,
-        spaceAfter=30,
-        alignment=1  # Centrado
-    )
-    
-    # Título
-    elements.append(Paragraph("REPORTE DE INVENTARIO - KRONOMOTOS", title_style))
-    elements.append(Spacer(1, 20))
-    
-    # Fecha del reporte
-    fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
-    elements.append(Paragraph(f"Fecha de generación: {fecha_actual}", styles['Normal']))
-    elements.append(Spacer(1, 20))
-    
-    # Estadísticas generales
-    total_productos = Inventario.objects.count()
-    categorias = Inventario.objects.values_list('categoria', flat=True).distinct()
-    
-    stats_data = [
-        ['Total de Productos', str(total_productos)],
-        ['Categorías', str(len(categorias))]
-    ]
-    
-    stats_table = Table(stats_data, colWidths=[3*inch, 2*inch])
-    stats_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 14),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    elements.append(stats_table)
-    elements.append(Spacer(1, 30))
-    
-    # Lista de productos
-    elements.append(Paragraph("INVENTARIO DE PRODUCTOS", styles['Heading2']))
-    elements.append(Spacer(1, 10))
-    
-    productos = Inventario.objects.all().order_by('categoria', 'nombre')
-    
-    if productos:
-        productos_data = [['Nombre', 'Categoría', 'Subcategoría', 'Precio']]
+    if request.method == 'POST':
+        productos = Inventario.objects.all()
+        if not productos.exists():
+            messages.warning(request, "No hay productos en el inventario para generar un reporte.")
+            return redirect('reportes_pdf')
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="reporte_inventario.pdf"'
         
-        for producto in productos:
-            productos_data.append([
-                producto.nombre[:30] + '...' if len(producto.nombre) > 30 else producto.nombre,
-                producto.categoria.title() if producto.categoria else 'N/A',
-                producto.sub_categoria.title() if producto.sub_categoria else 'N/A',
-                f"${producto.precio}" if producto.precio else 'N/A'
-            ])
+        # Crear el documento PDF
+        doc = SimpleDocTemplate(response, pagesize=letter)
+        elements = []
         
-        productos_table = Table(productos_data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1*inch])
-        productos_table.setStyle(TableStyle([
+        # Estilos
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=1  # Centrado
+        )
+        
+        # Título
+        elements.append(Paragraph("REPORTE DE INVENTARIO - KRONOMOTOS", title_style))
+        elements.append(Spacer(1, 20))
+        
+        # Fecha del reporte
+        fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
+        elements.append(Paragraph(f"Fecha de generación: {fecha_actual}", styles['Normal']))
+        elements.append(Spacer(1, 20))
+        
+        # Estadísticas generales
+        total_productos = productos.count()
+        categorias = productos.values_list('categoria', flat=True).distinct()
+        
+        stats_data = [
+            ['Total de Productos', str(total_productos)],
+            ['Categorías', str(len(categorias))]
+        ]
+        
+        stats_table = Table(stats_data, colWidths=[3*inch, 2*inch])
+        stats_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8)
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
         ]))
         
-        elements.append(productos_table)
-    else:
-        elements.append(Paragraph("No hay productos en el inventario.", styles['Normal']))
-    
-    # Construir el PDF
-    doc.build(elements)
-    return response
+        elements.append(stats_table)
+        elements.append(Spacer(1, 30))
+        
+        # Lista de productos
+        elements.append(Paragraph("INVENTARIO DE PRODUCTOS", styles['Heading2']))
+        elements.append(Spacer(1, 10))
+        
+        if productos:
+            productos_data = [['Nombre', 'Categoría', 'Subcategoría', 'Precio']]
+            
+            for producto in productos:
+                productos_data.append([
+                    producto.nombre[:30] + '...' if len(producto.nombre) > 30 else producto.nombre,
+                    producto.categoria.title() if producto.categoria else 'N/A',
+                    producto.sub_categoria.title() if producto.sub_categoria else 'N/A',
+                    f"${producto.precio}" if producto.precio else 'N/A'
+                ])
+            
+            productos_table = Table(productos_data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1*inch])
+            productos_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 1), (-1, -1), 8)
+            ]))
+            
+            elements.append(productos_table)
+        else:
+            elements.append(Paragraph("No hay productos en el inventario.", styles['Normal']))
+        
+        # Construir el PDF
+        doc.build(elements)
+        return response
+    return redirect('reportes_pdf')
 
 @login_required
 @user_passes_test(es_admin)

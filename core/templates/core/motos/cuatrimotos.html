@@ -1,4 +1,5 @@
 {% extends 'core/principales/basetemplates.html' %}
+{% load number_filters %}
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'motos/motos.css' %}">
@@ -10,7 +11,7 @@
         <div class="img-container" style="background-image: url('{{ item.photo.url }}');"></div>
         <div class="info">
           <h5>{{ item.nombre }}</h5>
-          <h6>${{ item.precio }}</h6>
+          <h6>${{ item.precio|format_price }}</h6>
           <a href="{% url 'vermas' item.id %}" class="btn btn-dark">Ver más</a>
         </div>
       </div>

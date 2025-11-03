@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from email_config import GMAIL_USER, GMAIL_PASSWORD
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=1u+@4z0x!4hbz2j1=)yz(kmyvgpocq+2zq)!o-p#o@r(ol*e='
 DEBUG = True
@@ -75,18 +76,19 @@ LOGIN_REDIRECT_URL = 'products'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-# Configuración de correo
-# Para producción, usar Gmail SMTP para enviar correos reales
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'yamaha.notificaciones@gmail.com'  # Cambiar por tu correo de Gmail
-EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'  # Contraseña de aplicación de Gmail
-DEFAULT_FROM_EMAIL = 'yamaha.notificaciones@gmail.com'  # Cambiar por tu correo de Gmail
+
+# Configuración de envío de correos
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'jhancarlosfrancomina@gmail.com'  
+#EMAIL_HOST_PASSWORD = ''
+#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 # Para desarrollo local, puedes usar el backend de consola:
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 

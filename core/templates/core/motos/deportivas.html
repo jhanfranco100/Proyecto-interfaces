@@ -1,20 +1,22 @@
 {% extends 'core/principales/basetemplates.html' %}
+{% load number_filters %}
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'motos/motos.css' %}">
 
 <div class="fil">
-  {% for inventario in inventario %}
-    {% if inventario.sub_categoria == 'deportivas' %}
-    <div class="box">
-      <div class="img-container" style="background-image: url('{{ inventario.photo.url }}');"></div>
-      <div class="info">
-        <h5>{{ inventario.nombre }}</h5>
-        <h6>{{ inventario.precio }}</h6>
-        <a href="{% url 'vermas' inventario.id %}" class="btn btn-dark">Ver más</a>
+  {% for item in inventario %}
+    {% if item.sub_categoria == 'deportivas' %}
+      <div class="box">
+        <div class="img-container" style="background-image: url('{{ item.photo.url }}');"></div>
+        <div class="info">
+          <h5>{{ item.nombre }}</h5>
+          <h6>${{ item.precio|default:"0.00"|format_price }}</h6>
+          <a href="{% url 'vermas' item.id %}" class="btn btn-dark">Ver más</a>
+        </div>
       </div>
-    </div>
     {% endif %}
   {% endfor %}
 </div>
+
 {% endblock %}
