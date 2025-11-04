@@ -1,7 +1,7 @@
 
 from django.conf import settings
 import os
-from django.db.models import F, FloatField
+from django.db.models import F, FloatField, CharField
 from django.db.models.functions import Cast
 
 from django.db.models import Sum
@@ -23,6 +23,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from django.utils import timezone
+from .templatetags.number_filters import format_price
 
 import re
 
@@ -198,14 +199,7 @@ def deportivas(request):
     if query:
         inventario = inventario.filter(sub_categoria__icontains='deportivas')
 
-    for item in inventario:
-        try:
-            # Accessing the price will trigger the conversion
-            _ = item.precio
-        except Exception as e:
-            # Print the item that is causing the error
-            print(f"Error processing item: {item.id}, price: {repr(item.precio)}")
-            raise e
+
 
     context = {
         'filter': 'deportivas',
@@ -692,8 +686,10 @@ def generar_reporte_ventas_pdf(request):
 @user_passes_test(es_admin)
 def generar_reporte_inventario_pdf(request):
     if request.method == 'POST':
-        productos = Inventario.objects.all()
-        if not productos.exists():
+        productos = Inventario.objects.annotate(
+            precio_str=Cast('precio', CharField())
+        ).values('nombre', 'categoria', 'sub_categoria', 'precio_str')
+        if not productos:
             messages.warning(request, "No hay productos en el inventario para generar un reporte.")
             return redirect('reportes_pdf')
 
@@ -755,11 +751,12 @@ def generar_reporte_inventario_pdf(request):
             productos_data = [['Nombre', 'Categoría', 'Subcategoría', 'Precio']]
             
             for producto in productos:
+                precio_str = producto['precio_str']
                 productos_data.append([
-                    producto.nombre[:30] + '...' if len(producto.nombre) > 30 else producto.nombre,
-                    producto.categoria.title() if producto.categoria else 'N/A',
-                    producto.sub_categoria.title() if producto.sub_categoria else 'N/A',
-                    f"${producto.precio}" if producto.precio else 'N/A'
+                    producto['nombre'][:30] + '...' if len(producto['nombre']) > 30 else producto['nombre'],
+                    producto['categoria'].title() if producto['categoria'] else 'N/A',
+                    producto['sub_categoria'].title() if producto['sub_categoria'] else 'N/A',
+                    format_price(precio_str) if precio_str else 'N/A'
                 ])
             
             productos_table = Table(productos_data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1*inch])
@@ -779,6 +776,7 @@ def generar_reporte_inventario_pdf(request):
         else:
             elements.append(Paragraph("No hay productos en el inventario.", styles['Normal']))
         
+        messages.success(request, "Reporte de inventario descargado correctamente.")
         # Construir el PDF
         doc.build(elements)
         return response

@@ -211,40 +211,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Modal de Confirmación -->
-    <div class="modal fade" id="reporteModal" tabindex="-1" aria-labelledby="reporteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reporteModalLabel">Descarga Exitosa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    El reporte se ha descargado correctamente.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const forms = document.querySelectorAll('form[action*="generar_reporte"]');
-            const modal = new bootstrap.Modal(document.getElementById('reporteModal'));
-
-            forms.forEach(form => {
-                form.addEventListener('submit', function (event) {
-                    alert("Form submitted!");
-                    // No detenemos el envío del formulario, solo mostramos el modal
-                    // después de un breve retraso para dar tiempo a que comience la descarga.
-                    setTimeout(() => {
-                        modal.show();
-                    }, 1000);
-                });
-            });
-        });
-    </script>
 </body>
 </html>
