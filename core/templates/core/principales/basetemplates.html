@@ -97,7 +97,14 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
-                <li><a class="dropdown-item" href="{% url 'notificaciones' %}">Notificaciones</a></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'notificaciones' %}">
+                    <i class="fas fa-bell"></i> Notificaciones
+                    {% if notification_count > 0 %}
+                      <span class="badge bg-danger rounded-pill">{{ notification_count }}</span>
+                    {% endif %}
+                  </a>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <form method="post" action="{% url 'logout' %}">

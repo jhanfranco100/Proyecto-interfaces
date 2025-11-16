@@ -1111,3 +1111,19 @@ def finalizar_compra(request):
         'items': items_con_subtotal,
         'total': total
     })
+
+@login_required
+def marcar_leida(request, notificacion_id):
+    if request.method == 'POST':
+        notificacion = get_object_or_404(Notificacion, id=notificacion_id, usuario=request.user)
+        notificacion.leida = True
+        notificacion.save()
+        messages.success(request, 'Notificación marcada como leída.')
+    return redirect('notificaciones')
+
+@login_required
+def marcar_todas_leidas(request):
+    if request.method == 'POST':
+        Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+        messages.success(request, 'Todas las notificaciones han sido marcadas como leídas.')
+    return redirect('notificaciones')
